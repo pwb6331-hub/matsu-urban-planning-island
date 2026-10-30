@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>連江縣政府工務處都計建管科 - 四鄉五島業務、考核與公文效能 3D 生態島</title>
+  <!-- 思源黑體 Web Font 優先載入 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --coral: #db6a41;
+      --ink: #1f2429;
+      --cream: #fffdfa;
+      --yellow: #fce881;
+      --stone: #9e9389;
+      --sky-blue: #93c9d6;
+      --matsu-red: #c9402a;
+      --shadow: 0 16px 36px rgba(31, 36, 41, 0.16);
+      --font-main: "Noto Sans TC", "Source Han Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html {
+      width: 100%; height: 100%; overflow: hidden;
+      font-family: var(--font-main);
+      background: radial-gradient(circle at center, #fbfdfd 0%, #d8e8ea 100%);
+      color: var(--ink);
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    #canvas-container { width: 100%; height: 100%; position: absolute; inset: 0; z-index: 1; touch-action: none; }
+
+    /* 毛玻璃通用面板 */
+    .glass-card {
+      background: rgba(255, 253, 250, 0.90);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1.5px solid rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      z-index: 10;
+      position: absolute;
+    }
+
+    /* 左上標題看板 */
+    #brand-header {
+      top: 20px; left: 24px; padding: 16px 22px;
+      display: flex; flex-direction: column; gap: 4px;
+      max-width: 440px; pointer-events: auto;
+    }
+    #brand-header .sub-badge {
+      font-size: 11px; font-weight: 800; color: #fff; background: var(--coral);
+      padding: 3px 10px; border-radius: 999px; width: fit-content; letter-spacing: 0.5px;
+    }
+    #brand-header h1 { font-size: 18px; font-weight: 900; color: var(--ink); letter-spacing: 0.5px; }
+    #brand-header p { font-size: 11px; color: #666; font-weight: 600; line-height: 1.4; }
+
+    /* 頂部指示燈條 */
+    #top-nav-ticker {
+      top: 20px; left: 50%; transform: translateX(-50%);
+      padding: 8px 24px; border-radius: 999px; font-size: 13px; font-weight: 800;
+      color: #fff; background: rgba(31, 36, 41, 0.88); box-shadow: var(--shadow);
+      display: flex; align-items: center; gap: 8px; z-index: 10; position: absolute;
+      letter-spacing: 0.5px; white-space: nowrap; pointer-events: none;
+    }
+    #top-nav-ticker span.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); flex-shrink: 0; }
+
+    /* 右上功能選單組 */
+    #top-dock {
+      top: 20px; right: 24px; display: flex; gap: 8px; z-index: 10; position: absolute;
+    }
+    .dock-btn {
+      background: rgba(255, 253, 250, 0.94); border: 1.5px solid #ded6cd;
+      padding: 9px 15px; border-radius: 12px; cursor: pointer; font-size: 12px;
+      font-weight: 800; font-family: var(--font-main); display: flex; align-items: center; gap: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dock-btn:hover { background: var(--yellow); transform: translateY(-2px); }
+
+    /* 右側詳細資訊抽屜面板 */
+    #detail-drawer {
+      top: 78px; right: 24px; width: 400px; max-height: calc(100vh - 170px);
+      overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+      z-index: 15;
+    }
+    #detail-drawer.hidden { transform: translateX(440px); opacity: 0; pointer-events: none; }
+    .drawer-title-row { display: flex; justify-content: space-between; align-items: center; }
+    .drawer-title { font-size: 18px; font-weight: 900; color: var(--coral); }
+    .drawer-badge { padding: 4px 10px; border-radius: 999px; background: #eef2f5; font-size: 11px; font-weight: 800; color: #444; }
+    
+    /* 統計指標磚 */
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-card {
+      background: rgba(255, 255, 255, 0.85); border: 1px solid #ebdcd0;
+      padding: 9px 12px; border-radius: 12px;
+    }
+    .metric-card .num { font-size: 16px; font-weight: 900; color: var(--coral); font-family: var(--font-main); }
+    .metric-card .label { font-size: 11px; color: #777; margin-top: 2px; }
+
+    /* 承辦人員 Tag (附考核榮譽) */
+    .officer-tag {
+      display: flex; flex-direction: column; gap: 4px; padding: 9px 12px;
+      background: #fff; border: 1px solid #e0d7cd; border-radius: 10px; font-size: 12px;
+    }
+    .officer-tag .name-row { display: flex; justify-content: space-between; font-weight: 800; align-items: baseline; }
+    .officer-tag .award-pill {
+      font-size: 10.5px; background: #fdf5ea; color: #c85a32; padding: 2px 7px;
+      border-radius: 4px; border: 1px solid #f6d8b8; width: fit-content; margin-top: 2px;
+    }
+
+    /* 底部控制列 */
+    #bottom-control-bar {
+      bottom: 24px; left: 50%; transform: translateX(-50%);
+      padding: 8px 18px; display: flex; gap: 8px; align-items: center;
+      border-radius: 999px; z-index: 10;
+    }
+    .ctrl-btn {
+      background: transparent; border: none; font-size: 12px; font-weight: 800;
+      font-family: var(--font-main);
+      padding: 7px 13px; border-radius: 999px; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; gap: 5px; white-space: nowrap;
+    }
+    .ctrl-btn:hover, .ctrl-btn.active {
+      background: #fff; color: var(--coral); box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* 浮動 CSS2D 膠囊名牌 */
+    .island-badge {
+      background: rgba(255, 253, 250, 0.95); color: var(--ink); padding: 5px 14px;
+      border-radius: 999px; font-size: 12px; font-weight: 900; border: 2px solid #fff;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15); pointer-events: auto; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      transform: translateY(-20px); transition: transform 0.2s, background 0.2s;
+    }
+    .island-badge:hover { transform: translateY(-24px) scale(1.05); }
+    .island-badge .pill-num {
+      background: var(--coral); color: #fff; width: 18px; height: 18px;
+      border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center;
+    }
+    .island-badge.active { background: var(--ink); color: #fff; border-color: var(--yellow); }
+
+    /* 底部跑馬字幕 */
+    #subtitle-bar {
+      bottom: 82px; left: 50%; transform: translateX(-50%);
+      background: rgba(31, 36, 41, 0.88); color: #fff; padding: 9px 22px;
+      border-radius: 14px; font-size: 12.5px; font-weight: 700; z-index: 10;
+      box-shadow: var(--shadow); max-width: 720px; text-align: center; pointer-events: none;
+      line-height: 1.5;
+    }
+
+    /* 彈出視窗模組 */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(25, 28, 31, 0.55);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      z-index: 100; display: none; align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: var(--cream); border-radius: 24px; width: 94%; max-width: 860px;
+      max-height: 85vh; overflow-y: auto; padding: 28px; box-shadow: var(--shadow);
+      position: relative; border: 1.5px solid #fff;
+    }
+    .modal-close {
+      position: absolute; top: 18px; right: 18px; width: 34px; height: 34px;
+      border-radius: 50%; border: none; background: #eee; cursor: pointer; font-weight: 900;
+      font-size: 16px; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: #dedede; }
+
+    /* 載入遮罩 */
+    #loader {
+      position: fixed; inset: 0; background: #ebdcd0; z-index: 999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; font-weight: 900; color: var(--coral);
+    }
+    .spinner {
+      width: 48px; height: 48px; border: 4px solid rgba(219, 106, 65, 0.2);
+      border-top-color: var(--coral); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ------------------------------------------------------------- */
+    /* 行動裝置 / 平板 RWD 響應式佈局 (Mobile & Tablet)                */
+    /* ------------------------------------------------------------- */
+    @media (max-width: 900px) {
+      #brand-header {
+        top: 10px; left: 10px; right: 10px; max-width: none;
+        padding: 10px 14px; border-radius: 14px;
+      }
+      #brand-header h1 { font-size: 15px; }
+      #brand-header p { display: none; }
+      
+      #top-dock {
+        top: 60px; left: 10px; right: 10px;
+        overflow-x: auto; padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .dock-btn { font-size: 11px; padding: 6px 10px; flex-shrink: 0; }
+
+      #top-nav-ticker {
+        top: auto; bottom: 76px; max-width: 92%;
+        font-size: 11px; padding: 6px 14px;
+      }
+
+      #detail-drawer {
+        top: auto; bottom: 74px; left: 10px; right: 10px;
+        width: auto; max-height: 58vh; border-radius: 18px;
+        padding: 16px; transform: translateY(0);
+      }
+      #detail-drawer.hidden { transform: translateY(120%); opacity: 0; pointer-events: none; }
+
+      #bottom-control-bar {
+        bottom: 12px; left: 50%; width: 95%; max-width: 500px;
+        padding: 6px 10px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+      }
+      .ctrl-btn { font-size: 11px; padding: 6px 10px; flex-shrink: 0; }
+
+      #subtitle-bar { display: none; }
+    }
+  </style>
+
+  <!-- ES Modules 映射表 (Three.js 0.160.0 & Addons) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- 載入等待動畫 -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <div style="font-size: 15px; letter-spacing: 0.5px;">正在組裝連江縣「都計建管科」微縮業務生態島…</div>
+  </div>
+
+  <div id="canvas-container"></div>
+
+  <!-- 左上標題看板 -->
+  <div id="brand-header" class="glass-card">
+    <div class="sub-badge">連江縣政府工務處都計建管科</div>
+    <h1>都計建管業務與公文效能 3D 生態島</h1>
+    <p>都計樁測定・國土功能分區・公保專案・建築線指示・無障礙勘檢</p>
+  </div>
+
+  <!-- 頂部指示燈條 -->
+  <div id="top-nav-ticker">
+    <span class="dot"></span>
+    <span id="ticker-text">連江縣都計建管四鄉五島全境視野・點選島嶼查閱業務與承辦</span>
+  </div>
+
+  <!-- 右上功能選單組 -->
+  <div id="top-dock">
+    <button class="dock-btn" onclick="toggleAudio()"><span id="audio-icon">🔊</span> 海潮環境音</button>
+    <button class="dock-btn" onclick="openModal('dispatch')">📋 重大列管業務</button>
+    <button class="dock-btn" onclick="openModal('performance')">📊 115年公文績效總表</button>
+    <button class="dock-btn" onclick="openModal('eval')">🏆 業務考核評鑑成績</button>
+    <button class="dock-btn" onclick="openModal('duties')">🏢 都計與建管權責</button>
+  </div>
+
+  <!-- 右側詳細資訊卡 (抽屜) -->
+  <div id="detail-drawer" class="glass-card hidden">
+    <div class="drawer-title-row">
+      <div class="drawer-title" id="d-title">島嶼標題</div>
+      <button onclick="closeDrawer()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#777; line-height:1;">✕</button>
+    </div>
+    <div class="drawer-badge" id="d-subtitle">次標題</div>
+    <div id="d-desc" style="font-size: 13px; line-height: 1.6; color:#444;"></div>
+    
+    <div style="font-size:12px; font-weight:800; color:var(--coral); margin-top:4px;">轄區主要承辦同仁與法定職掌</div>
+    <div id="d-officers" style="display:flex; flex-direction:column; gap:8px;"></div>
+
+    <div style="font-size:12px; font-weight:800; color:var(--coral); margin-top:4px;">115年度公文辦結效能數據</div>
+    <div class="metric-grid" id="d-metrics"></div>
+
+    <div style="border-top:1px dashed #d8cbbe; padding-top:10px;">
+      <div style="font-size:12px; font-weight:800; color:var(--coral); margin-bottom:4px;">重點列管都市計畫與建築管理專案</div>
+      <div id="d-projects" style="font-size: 12px; line-height: 1.5; color:#555;"></div>
+    </div>
+  </div>
+
+  <!-- 底部字幕提示條 -->
+  <div id="subtitle-bar">
+    拖曳滑鼠左鍵旋轉視角、滾輪縮放；點選各鄉小島深入檢視都計建管同仁公文績效與業務。
+  </div>
+
+  <!-- 底部控制工具列 -->
+  <div id="bottom-control-bar" class="glass-card">
+    <button class="ctrl-btn" onclick="prevIsland()">◀ 上一站</button>
+    <button class="ctrl-btn active" id="btn-tour" onclick="toggleAutoTour()">▶ 自動巡航</button>
+    <button class="ctrl-btn" onclick="nextIsland()">下一站 ▶</button>
+    <span style="color:#d0c6bc; user-select:none;">|</span>
+    <button class="ctrl-btn" onclick="setTimeMode('day', this)">☀️ 白晝</button>
+    <button class="ctrl-btn" onclick="setTimeMode('sunset', this)">🌅 夕陽</button>
+    <button class="ctrl-btn" onclick="setTimeMode('night', this)">🌙 漁火夜景</button>
+    <span style="color:#d0c6bc; user-select:none;">|</span>
+    <button class="ctrl-btn" onclick="setOverviewCamera()">🌐 全景</button>
+    <button class="ctrl-btn" onclick="setTopView()">📐 正俯視</button>
+  </div>
+
+  <!-- 彈出視窗模組 -->
+  <div id="main-modal" class="modal-overlay" onclick="onModalOverlayClick(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modal-content-area"></div>
+    </div>
+  </div>
+
+  <!-- 主邏輯程式碼 (ESM) -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+    // -----------------------------------------------------------------
+    // 0. 全域資料 (DATA)：全面整合 1151030 業務分工、考評榮譽與公文績效
+    // -----------------------------------------------------------------
+    window.DATA = {
+      islands: [
+        {
+          id: 'nangan',
+          num: '01',
+          name: '南竿行政核心示範島',
+          subtitle: '政經中樞・福澳智慧港區都計・使照施工查驗',
+          pos: { x: -0.8, z: -0.2 },
+          desc: '連江縣政與都計建管業務核心。主管南竿私人建使照施工管理勘驗、南竿介壽整體開發案、公部門建築執照審查管理、現有巷道建築線指示現場複核及全縣公共安全安檢申報。',
+          officers: [
+            { 
+              name: '曹玲', 
+              role: '違建管理／南竿私人建使照施工勘驗／建築公安與設備安檢', 
+              docs: 582, days: 1.56, 
+              award: '違建考核偏遠第一名(嘉獎一次+進步獎二次)、公安偏遠第二名' 
+            },
+            { 
+              name: '陳國華', 
+              role: '委託建照審查技術服務／公部門建使照管理／建築師督考', 
+              docs: 379, days: 1.30, 
+              award: '施工管理偏遠第一名(記功一次)、建雜照考核偏遠第三名' 
+            },
+            { 
+              name: '葉大魁', 
+              role: '介壽商場整體開發／都市更新／土地使用分區開立／公保地無妨礙證明', 
+              docs: 38, days: 0.84, 
+              award: '土地利用監測貢獻獎(嘉獎二次)、模範銅獎' 
+            }
+          ],
+          metrics: [
+            { label: '南竿主管發文量', val: '999 件' },
+            { label: '平均辦結天數', val: '1.23 天' },
+            { label: '使照施工勘驗', val: '100% 達成' },
+            { label: '公安設備申報率', val: '100%' }
+          ],
+          projects: '介壽商場整體開發招商都市設計審議、福澳商港二期倉儲物流基地建築執照審查、公共設施保留地檢討解編。',
+          tip: '【第 1 站】南竿島：福澳港混凝土碼頭與裝卸吊臂，媽祖巨神像手持呼吸燈籠俯瞰政經重鎮。'
+        },
+        {
+          id: 'beigan',
+          num: '02',
+          name: '北竿芹壁傳統聚落保存島',
+          subtitle: '聚落保存區建築管制・國土功能分區・都計樁聯測',
+          pos: { x: 3.4, z: -3.8 },
+          desc: '北竿特定區聚落保存與國土計畫核心。專責芹壁聚落保存區室裝許可與傳統花崗岩風貌免建雜照審查，執行北竿私人建使照勘驗與建築線指示現地會勘，並推動四鄉五島都計樁位測釘補建及塘岐整體開發。',
+          officers: [
+            { 
+              name: '陳國華', 
+              role: '聚落保存區管制／室裝許可／舊有房屋證明審查／空地分割合併', 
+              docs: 379, days: 1.30, 
+              award: '施工管理第一名(記功一次)' 
+            },
+            { 
+              name: '曹文馨', 
+              role: '北竿私人建使照勘驗管理／建築線指示／建案無障礙替改審議', 
+              docs: 259, days: 1.37, 
+              award: '無障礙考核偏遠第二名、防災救災訪評優等' 
+            },
+            { 
+              name: '葉大魁', 
+              role: '塘岐靶場整體開發／四鄉五島都計樁位測釘補建案／國土功能分區', 
+              docs: 38, days: 0.84, 
+              award: '離島基建考核90分' 
+            }
+          ],
+          metrics: [
+            { label: '聚落都計發文', val: '676 件' },
+            { label: '平均處理天數', val: '1.17 天' },
+            { label: '都計樁測釘進度', val: '100%' },
+            { label: '建築線會勘率', val: '100%' }
+          ],
+          projects: '芹壁聚落保存區傳統石屋免雜照工程審議、塘岐整體開發規劃、北竿全島國土功能分區圖繪製審查。',
+          tip: '【第 2 站】北竿芹壁島：層疊花崗岩石屋與壓瓦石屋頂，朱紅封火山牆起翹，外海靜臥芹壁龜島。'
+        },
+        {
+          id: 'dongyin',
+          num: '03',
+          name: '東引國之北疆要塞島',
+          subtitle: '都計保專公專案通檢・東引建照勘驗・山坡地建築管理',
+          pos: { x: 7.8, z: -8.6 },
+          desc: '國之北疆土地使用管制與陡坡建管重點。執行都市計畫保護區與特定專用區（保／公專案）通盤檢討（第二階段）、東引私人建使照勘驗管理，並針對陡坡地形推動山坡地建築管制（註：建築管理無水保審驗業務，水保回歸農林水利專責權責）。',
+          officers: [
+            { 
+              name: '張宇涵', 
+              role: '都市計畫保/公專案通盤檢討(第二階段)／土地開發案件審查／都計陳情', 
+              docs: 396, days: 2.43, 
+              award: '專案列管認真負責' 
+            },
+            { 
+              name: '曹文馨', 
+              role: '東引私人建使照勘驗管理／建築線指示／永續淨零建築', 
+              docs: 259, days: 1.37, 
+              award: '無障礙考核偏遠第二名' 
+            },
+            { 
+              name: '陳國華', 
+              role: '山坡地建築審查／避難空間及法定停車空間督考', 
+              docs: 379, days: 1.30, 
+              award: '建雜照考核偏遠第三名' 
+            }
+          ],
+          metrics: [
+            { label: '東引管轄發文', val: '1,034 件' },
+            { label: '平均審結天數', val: '1.70 天' },
+            { label: '保專土管審查', val: '100% 合規' },
+            { label: '陡坡建照抽查', val: '100%' }
+          ],
+          projects: '東引都市計畫保專區土地開發容許審查、南澳陡坡建築線指示現勘、東引島燈塔歷史風貌都市設計管控。',
+          tip: '【第 3 站】東引燈塔島：18 世紀純白花崗岩圓柱燈塔、紅色鑄鐵圓頂，360 度旋轉探照光束掃過北疆。'
+        },
+        {
+          id: 'chukuang',
+          num: '04',
+          name: '莒光樂活雙心島 (東西莒)',
+          subtitle: '莒光私人建使照施工・大埔傳統聚落・無障礙環境落實',
+          pos: { x: -5.8, z: 4.8 },
+          desc: '莒光雙島公共生活圈建築管理與聚落風貌保護。專責莒光私人建使照施工管理勘驗、大埔聚落舊有房屋合法證明查證、建築物無障礙設施與昇降設備安全檢查，落實離島公共安全無死角。',
+          officers: [
+            { 
+              name: '曹玲', 
+              role: '莒光私人建使照施工管理勘驗／違建輔導管理／公共設施多目標', 
+              docs: 582, days: 1.56, 
+              award: '違建考核偏遠第一名、公安第二名' 
+            },
+            { 
+              name: '陳國華', 
+              role: '大埔聚落保存區審議／舊有房屋證明查證審議小組／免建造雜照申請', 
+              docs: 379, days: 1.30, 
+              award: '施工管理考核偏遠第一名(記功一次)' 
+            },
+            { 
+              name: '曹曉芳', 
+              role: '科室綜合管考／行政支援與公文時效管考', 
+              docs: 58, days: 1.23, 
+              award: '時效優等' 
+            }
+          ],
+          metrics: [
+            { label: '莒光管考發文', val: '1,019 件' },
+            { label: '平均辦結天數', val: '1.36 天' },
+            { label: '舊有合法房屋', val: '100% 完成查核' },
+            { label: '無障礙通道合格', val: '100%' }
+          ],
+          projects: '大埔聚落石屋修繕建管免雜照程序核發、東莒白犬燈塔周邊公共設施多目標使用審查、青帆港無障礙步行通道稽查。',
+          tip: '【第 4 站】莒光樂活島：白犬燈塔花崗岩塔身與大埔聚落石屋相映，雙心航線渡輪穿梭不息。'
+        }
+      ],
+      performanceSummary: {
+        totalDocs: 1710,
+        avgDays: 1.45,
+        targetRate: '99.2%',
+        officersTotal: 6
+      }
+    };
+
+    // -----------------------------------------------------------------
+    // 1. Three.js 場景、相機、微縮光影與渲染器設置
+    // -----------------------------------------------------------------
+    let scene, camera, renderer, labelRenderer, controls;
+    let islandGroups = [];
+    let ferryMesh1, ferryMesh2;
+    let lightTowerBeams = [];
+    let mazuLanternGlow;
+    let wavePlane;
+    const container = document.getElementById('canvas-container');
+
+    function initScene() {
+      try {
+        scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0xd8e8ea, 28, 95);
+
+        camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.3, 300);
+        camera.position.set(16, 22, 28);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.05;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        container.appendChild(labelRenderer.domElement);
+
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.07;
+        controls.enablePan = true;
+        controls.minDistance = 6;
+        controls.maxDistance = 65;
+        controls.minPolarAngle = THREE.MathUtils.degToRad(25);
+        controls.maxPolarAngle = THREE.MathUtils.degToRad(72);
+        controls.target.set(0.5, 0, -1);
+
+        setupLighting();
+        setupDynamicOcean();
+        buildMatsuArchipelago();
+        buildFerryRoutes();
+
+        // 綁定事件：點擊判定與視窗尺寸自適應
+        window.addEventListener('resize', onWindowResize);
+        setupPointerInteractions();
+
+        document.getElementById('loader').style.display = 'none';
+        startClock();
+        animate();
+      } catch (err) {
+        console.error("Three.js 初始化異常:", err);
+        document.getElementById('loader').innerHTML = `<div style="color:red; padding:20px;">渲染初始化失敗：${err.message}</div>`;
+      }
+    }
+
+    // -----------------------------------------------------------------
+    // 2. 光照與三時相系統
+    // -----------------------------------------------------------------
+    let sunLight, hemiLight;
+    let windowGlowMaterials = [];
+
+    function setupLighting() {
+      hemiLight = new THREE.HemisphereLight(0xecf6fa, 0x8f8373, 1.35);
+      scene.add(hemiLight);
+
+      sunLight = new THREE.DirectionalLight(0xfff3e3, 2.8);
+      sunLight.position.set(22, 38, 26);
+      sunLight.castShadow = true;
+      sunLight.shadow.mapSize.width = 2048;
+      sunLight.shadow.mapSize.height = 2048;
+      sunLight.shadow.camera.near = 1;
+      sunLight.shadow.camera.far = 100;
+      sunLight.shadow.camera.left = -26;
+      sunLight.shadow.camera.right = 26;
+      sunLight.shadow.camera.top = 26;
+      sunLight.shadow.camera.bottom = -26;
+      sunLight.shadow.bias = -0.0004;
+      sunLight.shadow.normalBias = 0.04;
+      scene.add(sunLight);
+    }
+
+    window.setTimeMode = function(mode, btn) {
+      document.querySelectorAll('#bottom-control-bar .ctrl-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      if (mode === 'day') {
+        scene.fog.color.setHex(0xd8e8ea);
+        sunLight.color.setHex(0xfff3e3);
+        sunLight.intensity = 2.8;
+        hemiLight.color.setHex(0xecf6fa);
+        hemiLight.intensity = 1.35;
+        document.body.style.background = 'radial-gradient(circle at center, #fbfdfd 0%, #d8e8ea 100%)';
+        setWindowsEmissive(0.1);
+      } else if (mode === 'sunset') {
+        scene.fog.color.setHex(0xf7baa1);
+        sunLight.color.setHex(0xff9966);
+        sunLight.intensity = 2.1;
+        hemiLight.color.setHex(0xf7d2bc);
+        hemiLight.intensity = 1.15;
+        document.body.style.background = 'radial-gradient(circle at center, #fceadb 0%, #d9a088 100%)';
+        setWindowsEmissive(0.6);
+      } else if (mode === 'night') {
+        scene.fog.color.setHex(0x1a263d);
+        sunLight.color.setHex(0x6f87bd);
+        sunLight.intensity = 0.55;
+        hemiLight.color.setHex(0x40557d);
+        hemiLight.intensity = 1.5;
+        document.body.style.background = 'radial-gradient(circle at center, #1c273c 0%, #0d1420 100%)';
+        setWindowsEmissive(1.5);
+      }
+    };
+
+    function setWindowsEmissive(intensity) {
+      windowGlowMaterials.forEach(m => {
+        m.emissiveIntensity = intensity;
+      });
+      if (mazuLanternGlow) mazuLanternGlow.material.emissiveIntensity = intensity * 1.8 + 0.3;
+    }
+
+    // -----------------------------------------------------------------
+    // 3. 頂點波動海洋
+    // -----------------------------------------------------------------
+    let oceanPosAttr;
+    let oceanInitialY = [];
+
+    function setupDynamicOcean() {
+      const geo = new THREE.PlaneGeometry(160, 160, 90, 90);
+      geo.rotateX(-Math.PI / 2);
+      
+      oceanPosAttr = geo.attributes.position;
+      for (let i = 0; i < oceanPosAttr.count; i++) {
+        oceanInitialY.push(oceanPosAttr.getY(i));
+      }
+
+      const mat = new THREE.MeshStandardMaterial({
+        color: 0x6ba9ba,
+        roughness: 0.18,
+        metalness: 0.08,
+        flatShading: true
+      });
+      wavePlane = new THREE.Mesh(geo, mat);
+      wavePlane.position.y = -0.16;
+      wavePlane.receiveShadow = true;
+      scene.add(wavePlane);
+    }
+
+    // -----------------------------------------------------------------
+    // 4. 四鄉五島微縮模型建構
+    // -----------------------------------------------------------------
+    function createHexCanvasTexture() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 256; cvs.height = 256;
+      const ctx = cvs.getContext('2d');
+      ctx.fillStyle = '#eadecd';
+      ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = '#d4c4b0';
+      ctx.lineWidth = 3;
+      for (let i = 0; i < 256; i += 32) {
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(256, i); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 256); ctx.stroke();
+      }
+      return new THREE.CanvasTexture(cvs);
+    }
+
+    function buildMatsuArchipelago() {
+      const hexTex = createHexCanvasTexture();
+      const R = 2.45;
+      const TOP_H = 0.72;
+
+      DATA.islands.forEach((isleData, index) => {
+        const group = new THREE.Group();
+        group.position.set(isleData.pos.x, 0, isleData.pos.z);
+        group.userData = { isle: isleData, index: index };
+
+        const topGeo = new THREE.CylinderGeometry(R, R + 0.22, TOP_H, 6);
+        const topMat = new THREE.MeshStandardMaterial({
+          map: hexTex,
+          color: 0xfbf7f2,
+          roughness: 0.88,
+          metalness: 0.02
+        });
+        const topMesh = new THREE.Mesh(topGeo, topMat);
+        topMesh.position.y = TOP_H / 2;
+        topMesh.rotation.y = Math.PI / 6;
+        topMesh.receiveShadow = true;
+        topMesh.castShadow = true;
+        topMesh.userData = { isleId: isleData.id };
+        group.add(topMesh);
+
+        const walkGeo = new THREE.RingGeometry(R - 0.38, R - 0.05, 6);
+        const walkMat = new THREE.MeshStandardMaterial({ color: 0xdeb89e, roughness: 0.9 });
+        const walkway = new THREE.Mesh(walkGeo, walkMat);
+        walkway.rotation.x = -Math.PI / 2;
+        walkway.rotation.z = Math.PI / 6;
+        walkway.position.y = TOP_H + 0.005;
+        group.add(walkway);
+
+        const foamGeo = new THREE.RingGeometry(R + 0.06, R + 0.32, 6);
+        const foamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+        const foam = new THREE.Mesh(foamGeo, foamMat);
+        foam.rotation.x = -Math.PI / 2;
+        foam.rotation.z = Math.PI / 6;
+        foam.position.y = -0.12;
+        group.add(foam);
+
+        const badgeDiv = document.createElement('div');
+        badgeDiv.className = 'island-badge';
+        badgeDiv.id = `badge-${isleData.id}`;
+        badgeDiv.innerHTML = `<span class="pill-num">${isleData.num}</span><span>${isleData.name.slice(0, 2)}</span>`;
+        badgeDiv.onclick = (e) => {
+          e.stopPropagation();
+          isAutoTour = false;
+          updateTourButtonUI();
+          selectIsland(isleData.id);
+        };
+        const labelObj = new CSS2DObject(badgeDiv);
+        labelObj.position.set(0, TOP_H + 2.2, 0);
+        group.add(labelObj);
+
+        if (isleData.id === 'nangan') buildNanganFeatures(group, TOP_H);
+        else if (isleData.id === 'beigan') buildBeiganFeatures(group, TOP_H);
+        else if (isleData.id === 'dongyin') buildDongyinFeatures(group, TOP_H);
+        else if (isleData.id === 'chukuang') buildChukuangFeatures(group, TOP_H);
+
+        decorateIslandStreet(group, R, TOP_H);
+
+        scene.add(group);
+        islandGroups.push({ group, topMesh, data: isleData });
+      });
+    }
+
+    // 南竿：福澳港、裝卸吊臂、媽祖巨神像
+    function buildNanganFeatures(group, h) {
+      const g = new THREE.Group();
+      g.position.set(0, h, 0);
+
+      const statueGroup = new THREE.Group();
+      statueGroup.position.set(-0.75, 0, -0.6);
+
+      const baseGeo = new THREE.BoxGeometry(0.8, 0.35, 0.8);
+      const baseMat = new THREE.MeshStandardMaterial({ color: 0xf5f3ee, roughness: 0.7 });
+      const base = new THREE.Mesh(baseGeo, baseMat);
+      base.position.y = 0.175;
+      base.castShadow = true;
+      statueGroup.add(base);
+
+      const lotusGeo = new THREE.CylinderGeometry(0.42, 0.32, 0.14, 12);
+      const lotusMat = new THREE.MeshStandardMaterial({ color: 0xf49fb1, roughness: 0.6 });
+      const lotus = new THREE.Mesh(lotusGeo, lotusMat);
+      lotus.position.y = 0.42;
+      statueGroup.add(lotus);
+
+      const bodyGeo = new THREE.CylinderGeometry(0.24, 0.38, 1.35, 12);
+      const bodyMat = new THREE.MeshStandardMaterial({ color: 0xfcfbfa, roughness: 0.65 });
+      const body = new THREE.Mesh(bodyGeo, bodyMat);
+      body.position.y = 1.15;
+      body.castShadow = true;
+      statueGroup.add(body);
+
+      const crownGeo = new THREE.TorusGeometry(0.24, 0.05, 8, 20);
+      const crownMat = new THREE.MeshStandardMaterial({ color: 0xf0c043, metalness: 0.4, roughness: 0.3 });
+      const crown = new THREE.Mesh(crownGeo, crownMat);
+      crown.rotation.x = Math.PI / 2;
+      crown.position.y = 1.95;
+      statueGroup.add(crown);
+
+      const lanternGeo = new THREE.SphereGeometry(0.12, 10, 10);
+      const lanternMat = new THREE.MeshStandardMaterial({
+        color: 0xffd369,
+        emissive: 0xffaa00,
+        emissiveIntensity: 0.8
+      });
+      mazuLanternGlow = new THREE.Mesh(lanternGeo, lanternMat);
+      mazuLanternGlow.position.set(0.28, 1.1, 0.22);
+      statueGroup.add(mazuLanternGlow);
+      g.add(statueGroup);
+
+      const portGroup = new THREE.Group();
+      portGroup.position.set(0.65, 0, 0.5);
+
+      const pier = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.25, 0.7), new THREE.MeshStandardMaterial({ color: 0x999088 }));
+      pier.position.y = 0.125;
+      pier.castShadow = true;
+      portGroup.add(pier);
+
+      const ware = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.45, 0.45), new THREE.MeshStandardMaterial({ color: 0x4a7c8a, roughness: 0.7 }));
+      ware.position.set(-0.2, 0.45, 0);
+      ware.castShadow = true;
+      portGroup.add(ware);
+
+      const craneTower = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.85, 0.1), new THREE.MeshStandardMaterial({ color: 0xd9532f }));
+      craneTower.position.set(0.35, 0.55, 0.1);
+      const craneArm = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.08, 0.08), new THREE.MeshStandardMaterial({ color: 0xd9532f }));
+      craneArm.position.set(0.2, 0.95, 0.1);
+      portGroup.add(craneTower, craneArm);
+
+      const ship = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.22, 0.3), new THREE.MeshStandardMaterial({ color: 0x223344 }));
+      ship.position.set(0.4, 0.12, 0.55);
+      portGroup.add(ship);
+      g.add(portGroup);
+
+      group.add(g);
+    }
+
+    // 北竿：芹壁石屋、壓瓦石、起翹封火山牆、龜島
+    function buildBeiganFeatures(group, h) {
+      const g = new THREE.Group();
+      g.position.set(0, h, 0);
+
+      const stoneMat = new THREE.MeshStandardMaterial({ color: 0xa89d91, roughness: 0.9 });
+      const redWallMat = new THREE.MeshStandardMaterial({ color: 0xc93b2b, roughness: 0.6 });
+
+      const house1 = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.6, 0.7), stoneMat);
+      house1.position.set(-0.4, 0.3, -0.2);
+      house1.castShadow = true;
+      g.add(house1);
+
+      const fireWall = new THREE.Mesh(new THREE.ConeGeometry(0.65, 0.35, 4), redWallMat);
+      fireWall.rotation.y = Math.PI / 4;
+      fireWall.position.set(-0.4, 0.75, -0.2);
+      fireWall.castShadow = true;
+      g.add(fireWall);
+
+      for (let i = -0.25; i <= 0.25; i += 0.25) {
+        const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.06), stoneMat);
+        rock.position.set(-0.4 + i, 0.72, -0.05);
+        g.add(rock);
+      }
+
+      const house2 = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.6), stoneMat);
+      house2.position.set(0.45, 0.25, 0.3);
+      house2.castShadow = true;
+      const roof2 = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.28, 4), redWallMat);
+      roof2.rotation.y = Math.PI / 4;
+      roof2.position.set(0.45, 0.62, 0.3);
+      g.add(house2, roof2);
+
+      registerWindowGlow(house1, 0, 0.32, 0.36);
+      registerWindowGlow(house2, 0.45, 0.28, 0.61);
+
+      const turtleGroup = new THREE.Group();
+      turtleGroup.position.set(1.4, -h + 0.05, -1.2);
+      const turtleBody = new THREE.Mesh(new THREE.SphereGeometry(0.38, 8, 6), new THREE.MeshStandardMaterial({ color: 0x6e7865, roughness: 0.95 }));
+      turtleBody.scale.set(1.4, 0.45, 0.9);
+      turtleGroup.add(turtleBody);
+      g.add(turtleGroup);
+
+      group.add(g);
+    }
+
+    // 東引：歐風花崗岩燈塔、紅色鑄鐵圓頂、360度旋轉光束
+    function buildDongyinFeatures(group, h) {
+      const g = new THREE.Group();
+      g.position.set(0, h, 0);
+
+      const towerGeo = new THREE.CylinderGeometry(0.24, 0.36, 1.6, 16);
+      const towerMat = new THREE.MeshStandardMaterial({ color: 0xfdfcf7, roughness: 0.45 });
+      const tower = new THREE.Mesh(towerGeo, towerMat);
+      tower.position.set(0, 0.8, 0);
+      tower.castShadow = true;
+      g.add(tower);
+
+      const domeGeo = new THREE.SphereGeometry(0.28, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2);
+      const domeMat = new THREE.MeshStandardMaterial({ color: 0xc8382b, roughness: 0.5 });
+      const dome = new THREE.Mesh(domeGeo, domeMat);
+      dome.position.set(0, 1.65, 0);
+      g.add(dome);
+
+      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.14), new THREE.MeshStandardMaterial({ color: 0xfff7a8, emissive: 0xffea52, emissiveIntensity: 1.2 }));
+      lamp.position.set(0, 1.58, 0);
+      g.add(lamp);
+
+      const beamGeo = new THREE.ConeGeometry(1.2, 4.8, 16, 1, true);
+      const beamMat = new THREE.MeshBasicMaterial({
+        color: 0xfffacd,
+        transparent: true,
+        opacity: 0.32,
+        side: THREE.DoubleSide
+      });
+      const beam = new THREE.Mesh(beamGeo, beamMat);
+      beam.rotation.x = Math.PI / 2;
+      beam.position.set(0, 1.58, 2.4);
+      
+      const beamPivot = new THREE.Group();
+      beamPivot.position.set(0, 0, 0);
+      beamPivot.add(beam);
+      g.add(beamPivot);
+      lightTowerBeams.push(beamPivot);
+
+      const shed = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.4, 0.5), towerMat);
+      shed.position.set(-0.6, 0.2, 0.3);
+      shed.castShadow = true;
+      g.add(shed);
+
+      group.add(g);
+    }
+
+    // 莒光：東莒白犬燈塔、大埔聚落
+    function buildChukuangFeatures(group, h) {
+      const g = new THREE.Group();
+      g.position.set(0, h, 0);
+
+      const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.38, 1.4, 16), new THREE.MeshStandardMaterial({ color: 0xf5f3ee, roughness: 0.5 }));
+      tower.position.set(-0.55, 0.7, -0.4);
+      tower.castShadow = true;
+      g.add(tower);
+
+      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.13), new THREE.MeshStandardMaterial({ color: 0xffe680, emissive: 0xffc400, emissiveIntensity: 1 }));
+      lamp.position.set(-0.55, 1.45, -0.4);
+      g.add(lamp);
+
+      const beamGeo = new THREE.ConeGeometry(0.9, 3.8, 16, 1, true);
+      const beamMat = new THREE.MeshBasicMaterial({ color: 0xfffacd, transparent: true, opacity: 0.25, side: THREE.DoubleSide });
+      const beam = new THREE.Mesh(beamGeo, beamMat);
+      beam.rotation.x = Math.PI / 2;
+      beam.position.set(0, 0, 1.9);
+      const beamPivot = new THREE.Group();
+      beamPivot.position.set(-0.55, 1.45, -0.4);
+      beamPivot.add(beam);
+      g.add(beamPivot);
+      lightTowerBeams.push(beamPivot);
+
+      const houseMat = new THREE.MeshStandardMaterial({ color: 0xb5a99c, roughness: 0.85 });
+      const house = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.45, 0.6), houseMat);
+      house.position.set(0.4, 0.225, 0.3);
+      house.castShadow = true;
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(0.65, 0.25, 4), new THREE.MeshStandardMaterial({ color: 0xbf4d36, roughness: 0.7 }));
+      roof.rotation.y = Math.PI / 4;
+      roof.position.set(0.4, 0.55, 0.3);
+      g.add(house, roof);
+      registerWindowGlow(house, 0.4, 0.225, 0.61);
+
+      group.add(g);
+    }
+
+    function registerWindowGlow(parentMesh, x, y, z) {
+      const winGeo = new THREE.PlaneGeometry(0.14, 0.16);
+      const winMat = new THREE.MeshStandardMaterial({
+        color: 0xffe899,
+        emissive: 0xffb700,
+        emissiveIntensity: 0.2
+      });
+      windowGlowMaterials.push(winMat);
+      const win = new THREE.Mesh(winGeo, winMat);
+      win.position.set(x, y, z + 0.01);
+      scene.add(win);
+    }
+
+    function decorateIslandStreet(group, R, h) {
+      for (let i = 0; i < 4; i++) {
+        const ang = (i * Math.PI * 2) / 4 + 0.35;
+        const dist = R - 0.55;
+        const treeColor = (i % 2 === 0) ? 0x769968 : 0xebb0be;
+        const tree = new THREE.Mesh(
+          new THREE.DodecahedronGeometry(0.2, 1),
+          new THREE.MeshStandardMaterial({ color: treeColor, roughness: 0.9 })
+        );
+        tree.position.set(Math.cos(ang) * dist, h + 0.18, Math.sin(ang) * dist);
+        tree.castShadow = true;
+        group.add(tree);
+      }
+    }
+
+    // -----------------------------------------------------------------
+    // 5. 穿梭客輪 (臺馬之星 & 南北之星)
+    // -----------------------------------------------------------------
+    function buildFerryRoutes() {
+      ferryMesh1 = createMiniShip(0x2c4960, 0xd9534f);
+      ferryMesh2 = createMiniShip(0xffffff, 0x337ab7);
+      scene.add(ferryMesh1, ferryMesh2);
+    }
+
+    function createMiniShip(hullColor, cabinColor) {
+      const ship = new THREE.Group();
+      const hull = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.14, 0.22), new THREE.MeshStandardMaterial({ color: hullColor, roughness: 0.5 }));
+      hull.position.y = 0.07;
+      hull.castShadow = true;
+      const cabin = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.15, 0.16), new THREE.MeshStandardMaterial({ color: cabinColor, roughness: 0.6 }));
+      cabin.position.set(-0.06, 0.18, 0);
+      cabin.castShadow = true;
+      ship.add(hull, cabin);
+      return ship;
+    }
+
+    // -----------------------------------------------------------------
+    // 6. 純 Web Audio 海潮合成器
+    // -----------------------------------------------------------------
+    let audioCtx = null;
+    let isAudioPlaying = false;
+    let noiseNode = null;
+    let filterNode = null;
+
+    window.toggleAudio = function() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        buildOceanSoundSynthesizer();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const icon = document.getElementById('audio-icon');
+      if (isAudioPlaying) {
+        audioCtx.suspend();
+        isAudioPlaying = false;
+        icon.innerText = '🔇';
+      } else {
+        audioCtx.resume();
+        isAudioPlaying = true;
+        icon.innerText = '🔊';
+      }
+    };
+
+    function buildOceanSoundSynthesizer() {
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.08;
+        b6 = white * 0.115926;
+      }
+
+      noiseNode = audioCtx.createBufferSource();
+      noiseNode.buffer = noiseBuffer;
+      noiseNode.loop = true;
+
+      filterNode = audioCtx.createBiquadFilter();
+      filterNode.type = 'lowpass';
+      filterNode.frequency.setValueAtTime(320, audioCtx.currentTime);
+
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.setValueAtTime(0.35, audioCtx.currentTime);
+
+      const lfo = audioCtx.createOscillator();
+      lfo.frequency.setValueAtTime(0.12, audioCtx.currentTime);
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.setValueAtTime(260, audioCtx.currentTime);
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filterNode.frequency);
+
+      noiseNode.connect(filterNode);
+      filterNode.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      noiseNode.start();
+      lfo.start();
+    }
+
+    // -----------------------------------------------------------------
+    // 7. 互動巡弋、點擊判定與相機鏡頭插值
+    // -----------------------------------------------------------------
+    let currentIndex = 0;
+    let isAutoTour = true;
+    let tourTimer = null;
+    let isCameraFlying = false;
+    let flyStartPos = new THREE.Vector3();
+    let flyEndPos = new THREE.Vector3();
+    let flyStartLook = new THREE.Vector3();
+    let flyEndLook = new THREE.Vector3();
+    let flyProgress = 0;
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+
+    function setupPointerInteractions() {
+      window.addEventListener('pointerdown', (e) => {
+        pointerStartX = e.clientX;
+        pointerStartY = e.clientY;
+      });
+
+      window.addEventListener('pointerup', (e) => {
+        // 防止拖曳旋轉時誤觸發島嶼選取 (位移大於 6px 視為旋轉視角而非點擊)
+        const dx = Math.abs(e.clientX - pointerStartX);
+        const dy = Math.abs(e.clientY - pointerStartY);
+        if (dx > 6 || dy > 6) return;
+
+        if (e.target.closest('#brand-header, #top-dock, #detail-drawer, #bottom-control-bar, .modal-overlay, #top-nav-ticker')) return;
+
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        const hitList = raycaster.intersectObjects(islandGroups.map(ig => ig.topMesh), false);
+        if (hitList.length > 0) {
+          const matched = islandGroups.find(ig => ig.topMesh === hitList[0].object);
+          if (matched) {
+            isAutoTour = false;
+            updateTourButtonUI();
+            selectIsland(matched.data.id);
+          }
+        }
+      });
+    }
+
+    function selectIsland(id) {
+      const idx = DATA.islands.findIndex(isle => isle.id === id);
+      if (idx !== -1) {
+        currentIndex = idx;
+        const isle = DATA.islands[idx];
+        flyToTarget(isle.pos.x, isle.pos.z, isle);
+        updateDrawerContent(isle);
+        updateActiveBadge(isle.id);
+      }
+    }
+
+    function flyToTarget(x, z, isle) {
+      isCameraFlying = true;
+      flyProgress = 0;
+      flyStartPos.copy(camera.position);
+      flyStartLook.copy(controls.target);
+
+      flyEndLook.set(x, 0.72, z);
+      flyEndPos.set(x + 4.8, 7.2, z + 6.8);
+
+      document.getElementById('ticker-text').innerText = `【${isle.num}】${isle.name} - ${isle.subtitle}`;
+      const subtitleBar = document.getElementById('subtitle-bar');
+      if (subtitleBar) subtitleBar.innerText = isle.tip;
+    }
+
+    function updateDrawerContent(isle) {
+      const drawer = document.getElementById('detail-drawer');
+      document.getElementById('d-title').innerText = isle.name;
+      document.getElementById('d-subtitle').innerText = isle.subtitle;
+      document.getElementById('d-desc').innerText = isle.desc;
+      
+      const offDiv = document.getElementById('d-officers');
+      offDiv.innerHTML = isle.officers.map(o => `
+        <div class="officer-tag">
+          <div class="name-row">
+            <span>👤 <strong>${o.name}</strong></span>
+            <span style="color:var(--coral); font-size:11px;">[發文 ${o.docs} 件・均速 ${o.days} 天]</span>
+          </div>
+          <div style="font-size:11px; color:#555; line-height:1.4;">${o.role}</div>
+          <div class="award-pill">🏆 ${o.award}</div>
+        </div>
+      `).join('');
+
+      const mDiv = document.getElementById('d-metrics');
+      mDiv.innerHTML = isle.metrics.map(m => `
+        <div class="metric-card">
+          <div class="num">${m.val}</div>
+          <div class="label">${m.label}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('d-projects').innerText = isle.projects;
+      drawer.classList.remove('hidden');
+    }
+
+    window.closeDrawer = function() {
+      document.getElementById('detail-drawer').classList.add('hidden');
+      setOverviewCamera();
+    };
+
+    function updateActiveBadge(activeId) {
+      DATA.islands.forEach(isle => {
+        const b = document.getElementById(`badge-${isle.id}`);
+        if (b) {
+          if (isle.id === activeId) b.classList.add('active');
+          else b.classList.remove('active');
+        }
+      });
+    }
+
+    window.prevIsland = function() {
+      isAutoTour = false;
+      updateTourButtonUI();
+      currentIndex = (currentIndex - 1 + DATA.islands.length) % DATA.islands.length;
+      selectIsland(DATA.islands[currentIndex].id);
+    };
+
+    window.nextIsland = function() {
+      isAutoTour = false;
+      updateTourButtonUI();
+      currentIndex = (currentIndex + 1) % DATA.islands.length;
+      selectIsland(DATA.islands[currentIndex].id);
+    };
+
+    window.toggleAutoTour = function() {
+      isAutoTour = !isAutoTour;
+      updateTourButtonUI();
+      if (isAutoTour) runAutoTourStep();
+    };
+
+    function updateTourButtonUI() {
+      const btn = document.getElementById('btn-tour');
+      if (isAutoTour) {
+        btn.classList.add('active');
+        btn.innerHTML = '⏸ 巡航中';
+      } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '▶ 自動巡航';
+      }
+    }
+
+    function runAutoTourStep() {
+      if (!isAutoTour) return;
+      selectIsland(DATA.islands[currentIndex].id);
+      currentIndex = (currentIndex + 1) % DATA.islands.length;
+      clearTimeout(tourTimer);
+      tourTimer = setTimeout(runAutoTourStep, 7500);
+    }
+
+    window.setOverviewCamera = function() {
+      isAutoTour = false;
+      updateTourButtonUI();
+      isCameraFlying = true;
+      flyProgress = 0;
+      flyStartPos.copy(camera.position);
+      flyStartLook.copy(controls.target);
+      flyEndLook.set(0.5, 0, -1);
+      flyEndPos.set(16, 22, 28);
+      document.getElementById('ticker-text').innerText = '連江縣都計建管四鄉五島全境視野・點選島嶼查閱業務與承辦';
+    };
+
+    window.setTopView = function() {
+      isAutoTour = false;
+      updateTourButtonUI();
+      isCameraFlying = true;
+      flyProgress = 0;
+      flyStartPos.copy(camera.position);
+      flyStartLook.copy(controls.target);
+      flyEndLook.set(0.5, 0, -1);
+      flyEndPos.set(0.51, 38, -0.99);
+    };
+
+    // -----------------------------------------------------------------
+    // 8. 視窗 Modal 業務內容 (嚴格校正業務、考核與公文統計)
+    // -----------------------------------------------------------------
+    window.openModal = function(type) {
+      const modal = document.getElementById('main-modal');
+      const box = document.getElementById('modal-content-area');
+      modal.classList.add('active');
+
+      if (type === 'performance') {
+        box.innerHTML = `
+          <h2 style="color:var(--coral); font-size:20px; margin-bottom:10px;">📊 115年度都計建管科 公文處理績效分析總表</h2>
+          <p style="font-size:12px; color:#666; margin-bottom:14px;">統計基準日：115年10月30日止（發文總數不含存查及未創號）</p>
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
+              <tr style="background:#faede4; color:var(--coral);">
+                <th style="padding:10px; border:1px solid #ebdcd0;">姓名</th>
+                <th style="padding:10px; border:1px solid #ebdcd0;">主要業務範疇</th>
+                <th style="padding:10px; border:1px solid #ebdcd0;">發文總數</th>
+                <th style="padding:10px; border:1px solid #ebdcd0;">平均處理天數</th>
+                <th style="padding:10px; border:1px solid #ebdcd0;">公文考核評等</th>
+              </tr>
+              <tr>
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold;">曹玲</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; text-align:left;">違建管理輔導、公安安檢、南竿莒光私人建使照勘驗、設備安檢</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold; color:var(--coral);">582 件</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;">1.56 天</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;"><span style="color:green; font-weight:bold;">特優</span></td>
+              </tr>
+              <tr style="background:#faf8f5;">
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold;">陳國華</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; text-align:left;">委託建照審查技術服務、公部門建使照管理、聚落保存區、舊有房屋</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold; color:var(--coral);">379 件</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;">1.30 天</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;"><span style="color:green; font-weight:bold;">優等</span></td>
+              </tr>
+              <tr>
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold;">張宇涵</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; text-align:left;">都計保/公專案通盤檢討、個案變更、分區土地開發審查、都計委員會</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold; color:var(--coral);">396 件</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;">2.43 天</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;">良好</td>
+              </tr>
+              <tr style="background:#faf8f5;">
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold;">曹文馨</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; text-align:left;">東引北竿私人建使照勘驗、建築線指示、建案無障礙替改審議、綠建築</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold; color:var(--coral);">259 件</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;">1.37 天</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;"><span style="color:green; font-weight:bold;">優等</span></td>
+              </tr>
+              <tr>
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold;">曹曉芳</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; text-align:left;">科室綜合業務、綜合管考與法規會辦</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold; color:var(--coral);">58 件</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;">1.23 天</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;"><span style="color:green; font-weight:bold;">優等</span></td>
+              </tr>
+              <tr style="background:#faf8f5;">
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold;">葉大魁</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; text-align:left;">連江國土功能分區、都計樁位測釘補建、土地使用分區開立、公保地無妨礙</td>
+                <td style="padding:9px; border:1px solid #ebdcd0; font-weight:bold; color:var(--coral);">38 件</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;">0.84 天</td>
+                <td style="padding:9px; border:1px solid #ebdcd0;"><span style="color:#20639b; font-weight:bold;">極速</span></td>
+              </tr>
+            </table>
+          </div>
+          <div style="margin-top:14px; background:#f4f0eb; padding:12px; border-radius:12px; font-size:12px; line-height:1.6;">
+            <strong>總體績效綜整：</strong>全科累計發文量達 <strong>1,710 件</strong>，平均辦結時程 <strong>1.45 天</strong>，公文效能指標達成率 99.2%。
+          </div>
+        `;
+      } else if (type === 'eval') {
+        box.innerHTML = `
+          <h2 style="color:var(--coral); font-size:20px; margin-bottom:10px;">🏆 115年度都計建管業務考核與評鑑成果</h2>
+          <p style="font-size:12px; color:#666; margin-bottom:14px;">資料來源：連江縣政府工務處 115年都建科考核表 (1151030)</p>
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:12.5px; text-align:center;">
+              <tr style="background:#faede4; color:var(--coral);">
+                <th style="padding:8px; border:1px solid #ebdcd0;">承辦人</th>
+                <th style="padding:8px; border:1px solid #ebdcd0;">考評項目</th>
+                <th style="padding:8px; border:1px solid #ebdcd0;">113年</th>
+                <th style="padding:8px; border:1px solid #ebdcd0;">114年</th>
+                <th style="padding:8px; border:1px solid #ebdcd0;">115年</th>
+                <th style="padding:8px; border:1px solid #ebdcd0;">榮譽獎懲紀錄</th>
+                <th style="padding:8px; border:1px solid #ebdcd0;">管考里程碑</th>
+              </tr>
+              <tr>
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold;">曹玲</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left;">違章建築及廣告物督導考核</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">53.59</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">62.99/創意獎</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold; color:var(--coral);">76</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left; color:#a23c1e;">偏遠型第一名(嘉獎一次)<br>進步獎(嘉獎二次)</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">7/30前上網填報</td>
+              </tr>
+              <tr style="background:#faf8f5;">
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold;">曹玲</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left;">建築物公共安全考核</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">84.27</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">85.76</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold;">79.04</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left;">偏遠型第二名(嘉獎一次)</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">5/31前上網填報</td>
+              </tr>
+              <tr>
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold;">陳國華</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left;">建築物施工管理業務考核</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">89.07</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">94</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold; color:var(--coral);">91.5</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left; color:#a23c1e; font-weight:bold;">偏遠型第一名(記功一次)</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">4/30前上網填報</td>
+              </tr>
+              <tr style="background:#faf8f5;">
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold;">陳國華</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left;">建造執照與雜項執照管理考核</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">76.5</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">82.95</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold;">86.84</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left;">偏遠型第三名(嘉獎二次)</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">4/30前上網填報</td>
+              </tr>
+              <tr>
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold;">曹文馨</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left;">建築物設置無障礙考核</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">70.5</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">-</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold;">67.4</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left;">偏遠型第二名</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">8/31前上網填報</td>
+              </tr>
+              <tr style="background:#faf8f5;">
+                <td style="padding:8px; border:1px solid #ebdcd0; font-weight:bold;">葉大魁</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left;">土地利用監測作業成果評鑑</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">-</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">模範銅獎</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">-</td>
+                <td style="padding:8px; border:1px solid #ebdcd0; text-align:left; color:#a23c1e;">貢獻獎(嘉獎二次)</td>
+                <td style="padding:8px; border:1px solid #ebdcd0;">6/30函送資料</td>
+              </tr>
+            </table>
+          </div>
+        `;
+      } else if (type === 'dispatch') {
+        box.innerHTML = `
+          <h2 style="color:var(--coral); font-size:20px; margin-bottom:12px;">📋 局處長官交辦重大列管業務</h2>
+          <div style="font-size:13px; line-height:1.8;">
+            <p><strong>1. 連江縣國土功能分區與公保專案通檢：</strong>配合國土計畫法推進全縣國土功能分區圖及使用地劃設審定，加速公共設施保留地（公保地）專案通盤檢討（第二階段）。</p>
+            <p><strong>2. 四鄉五島都市計畫樁位測釘補建暨虛擬化：</strong>全面執行四鄉五島都計樁位測釘補建暨虛擬化示範計畫案與監審案，校正數值化地籍圖籍。</p>
+            <p><strong>3. 建築線指示現勘與執照審查時效管制：</strong>落實現有巷道建築線指示現場勘查與圖資套繪標準化，督促建造執照、使用執照線上審查時效。</p>
+            <p><strong>4. 建築物無障礙設施設備查驗與違建查報：</strong>嚴格抽檢既有及新建建築物無障礙設施、替代改善計畫，落實違章建築即報即拆與公共安全定期申報（註：建築管理無水保審驗業務）。</p>
+          </div>
+        `;
+      } else if (type === 'duties') {
+        box.innerHTML = `
+          <h2 style="color:var(--coral); font-size:20px; margin-bottom:12px;">🏢 都計建管科 法定權責職掌與分工</h2>
+          <div style="font-size:13px; line-height:1.7;">
+            <div style="margin-bottom:12px;">
+              <strong style="color:var(--coral);">【都市計畫業務】</strong><br>
+              ・連江國土功能分區及使用地劃設、土地利用監測評鑑。<br>
+              ・都市計畫主細部計畫通檢、保／公專案通盤檢討（第二階段）委託案。<br>
+              ・都市計畫樁位測釘補建暨虛擬化示範計畫案、樁位證明與樁位清理。<br>
+              ・公共設施保留地（公設用地）無妨礙證明、土地使用分區開立。<br>
+              ・都市設計及土地使用審議小組、都市計畫委員會、都市更新及整體開發。
+            </div>
+            <div>
+              <strong style="color:var(--coral);">【建築管理業務】</strong><br>
+              ・建造執照、使用執照、拆除執照及雜項執照審查管理。<br>
+              ・現有巷道認定與建築線指示現地會勘核發。<br>
+              ・建築物設置無障礙考核、建案無障礙替代改善審議。<br>
+              ・建築物施工管理勘驗、公共安全考核、昇降及機械停車設備安檢。<br>
+              ・聚落保存區建築管制、室內裝修施工許可、舊有合法房屋證明及審議小組。<br>
+              ・違章建築及廣告物督導考核、新增違建查報取締及強制拆除。<br>
+              <span style="color:#777; font-size:12px;">（備註：建築管理無水保審驗，水土保持計畫審核回歸水利土保專責權責。）</span>
+            </div>
+          </div>
+        `;
+      }
+    };
+
+    window.closeModal = function() {
+      document.getElementById('main-modal').classList.remove('active');
+    };
+
+    window.onModalOverlayClick = function(e) {
+      if (e.target.id === 'main-modal') {
+        closeModal();
+      }
+    };
+
+    // -----------------------------------------------------------------
+    // 9. 逐幀渲染迴圈
+    // -----------------------------------------------------------------
+    let clockTime = 0;
+    function startClock() {
+      runAutoTourStep();
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      clockTime += 0.02;
+
+      if (oceanPosAttr) {
+        for (let i = 0; i < oceanPosAttr.count; i++) {
+          const u = oceanPosAttr.getX(i);
+          const v = oceanPosAttr.getZ(i);
+          const waveHeight = Math.sin(u * 0.18 + clockTime * 1.6) * 0.08 +
+                             Math.cos(v * 0.18 + clockTime * 1.3) * 0.07;
+          oceanPosAttr.setY(i, oceanInitialY[i] + waveHeight);
+        }
+        oceanPosAttr.needsUpdate = true;
+      }
+
+      lightTowerBeams.forEach(b => {
+        b.rotation.y += 0.025;
+      });
+
+      if (ferryMesh1) {
+        const t1 = (clockTime * 0.25) % (Math.PI * 2);
+        ferryMesh1.position.x = Math.sin(t1) * 2.6 + 1.2;
+        ferryMesh1.position.z = Math.cos(t1) * 2.2 - 2.0;
+        ferryMesh1.position.y = 0.02 + Math.sin(clockTime * 2) * 0.015;
+        ferryMesh1.rotation.y = -t1 + Math.PI / 2;
+      }
+      if (ferryMesh2) {
+        const t2 = (clockTime * 0.18) % (Math.PI * 2);
+        ferryMesh2.position.x = Math.cos(t2) * 3.4 - 3.2;
+        ferryMesh2.position.z = Math.sin(t2) * 2.8 + 2.2;
+        ferryMesh2.position.y = 0.02 + Math.cos(clockTime * 2.2) * 0.015;
+        ferryMesh2.rotation.y = t2;
+      }
+
+      if (mazuLanternGlow) {
+        mazuLanternGlow.material.emissiveIntensity = 0.7 + Math.sin(clockTime * 3) * 0.35;
+      }
+
+      if (isCameraFlying) {
+        flyProgress += 0.025;
+        const t = Math.min(flyProgress, 1.0);
+        const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+        camera.position.lerpVectors(flyStartPos, flyEndPos, ease);
+        controls.target.lerpVectors(flyStartLook, flyEndLook, ease);
+
+        if (t >= 1.0) isCameraFlying = false;
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+      labelRenderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    initScene();
+  </script>
+</body>
+</html>
