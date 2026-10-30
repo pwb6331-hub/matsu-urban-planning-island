@@ -325,6 +325,7 @@
 
   <!-- 右上功能選單組 -->
   <div id="top-dock">
+    <button class="dock-btn" id="btn-record" onclick="toggleVideoRecord(this)" style="border-color:#d4652f; color:#d4652f;">🎬 錄製動畫</button>
     <button class="dock-btn" onclick="toggleAudio()"><span id="audio-icon">🔊</span> 海潮環境音</button>
     <button class="dock-btn" onclick="openModal('dispatch')">📋 重大列管業務</button>
     <button class="dock-btn" onclick="openModal('performance')">📊 115年公文績效總表</button>
@@ -1775,6 +1776,69 @@
       noiseNode.start();
       lfo.start();
     }
+
+    // 內建 WebGL 60fps 動畫一鍵錄影匯出器
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+    let recTimer = null;
+    let recSeconds = 0;
+
+    window.toggleVideoRecord = function(btn) {
+      if (!isRecording) {
+        try {
+          const stream = renderer.domElement.captureStream(60);
+          const mimeTypes = [
+            'video/mp4;codecs=avc1.42E01E',
+            'video/webm;codecs=vp9',
+            'video/webm;codecs=vp8',
+            'video/webm'
+          ];
+          const selectedMime = mimeTypes.find(m => MediaRecorder.isTypeSupported(m)) || 'video/webm';
+          mediaRecorder = new MediaRecorder(stream, {
+            mimeType: selectedMime,
+            videoBitsPerSecond: 12000000
+          });
+          recordedChunks = [];
+          mediaRecorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+          };
+          mediaRecorder.onstop = () => {
+            const ext = selectedMime.includes('mp4') ? 'mp4' : 'webm';
+            const blob = new Blob(recordedChunks, { type: selectedMime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `馬祖四鄉五島_都計建管3D生態島_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.${ext}`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+          };
+          mediaRecorder.start(200);
+          isRecording = true;
+          recSeconds = 0;
+          btn.style.background = '#d4652f';
+          btn.style.color = '#fff';
+          btn.innerHTML = '⏹ 停止並下載 (00s)';
+          recTimer = setInterval(() => {
+            recSeconds++;
+            btn.innerHTML = `⏹ 停止並下載 (${String(recSeconds).padStart(2, '0')}s)`;
+          }, 1000);
+        } catch (err) {
+          alert('瀏覽器錄影啟動失敗：' + err.message);
+        }
+      } else {
+        clearInterval(recTimer);
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+        }
+        isRecording = false;
+        btn.style.background = '';
+        btn.style.color = '#d4652f';
+        btn.innerHTML = '🎬 錄製動畫';
+      }
+    };
 
     // =================================================================
     // 8. 互動巡弋、Raycaster 拾取與運鏡控制
