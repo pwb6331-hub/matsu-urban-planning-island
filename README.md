@@ -16,6 +16,21 @@
 
 ---
 
+## ⚡ 高階 WebGL 架構與效能優化亮點
+
+1. **GPU Custom Shader 海浪引擎（0% CPU 頂點開銷）**：
+   - 廢除傳統 CPU 逐幀迭代 8,281 個頂點與 PCIe 緩衝區上傳，改由 `MeshStandardMaterial.onBeforeCompile` 注入頂點與片段著色器（三波疊加 + 浪峰白沫 Crest Foam 混色），僅更新單一 `uTime` Uniform。
+2. **硬體實例化渲染 (`THREE.InstancedMesh`) 與資源快取池 (`ResourcePool`)**：
+   - 將四島環道植栽與共用幾何/材質統一收斂至 `ResourcePool` 與 `InstancedMesh` 批次渲染，大幅降低 WebGL Draw Calls 與記憶體配置。
+3. **階層式座標空間修正與三時相動態光源**：
+   - 修正建築窗戶發光面片世界座標偏移問題，完整掛載於南竿福澳倉儲、北竿芹壁石屋、東引燈塔機房與莒光大埔聚落局部座標系，並為媽祖巨神像燈籠配置夜間真實點光源 (`THREE.PointLight`)。
+4. **跨平台真實時間步進 (`THREE.Clock` Delta-Time) 與背景休眠機制**：
+   - 全面解耦螢幕刷新率（支援 30Hz / 60Hz / 120Hz ProMotion / 144Hz 等速運鏡與航行），並整合 `visibilitychange` 頁面生命週期監聽，切換至背景分頁時自動暫停 WebGL 與 Web Audio 渲染。
+5. **雙相機模式（`📐 等距微縮 Orthographic` / `🎥 透視景深 Perspective`）與貝茲樣條海運網路**：
+   - 支援一鍵切換等距正交微縮沙盒與透視景深視角；導入 `THREE.CatmullRomCurve3` 閉環樣條航線（南北之星、臺馬之星、東海明珠三航道），船隻依切線向量 (`getTangentAt`) 真實轉向並附帶船尾浪花。
+
+---
+
 ## 🚀 快速開啟與部署方式
 
 ### 方式 1：直接雙擊開啟（本機無伺服器模式）

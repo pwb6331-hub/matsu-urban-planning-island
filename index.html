@@ -29,6 +29,7 @@
       user-select: none;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      transition: background 0.6s ease;
     }
     #canvas-container { width: 100%; height: 100%; position: absolute; inset: 0; z-index: 1; touch-action: none; }
 
@@ -37,7 +38,7 @@
       background: rgba(255, 253, 250, 0.90);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
-      border: 1.5px solid rgba(255, 255, 255, 0.7);
+      border: 1.5px solid rgba(255, 255, 255, 0.72);
       border-radius: 20px;
       box-shadow: var(--shadow);
       z-index: 10;
@@ -48,14 +49,22 @@
     #brand-header {
       top: 20px; left: 24px; padding: 16px 22px;
       display: flex; flex-direction: column; gap: 4px;
-      max-width: 440px; pointer-events: auto;
+      max-width: 450px; pointer-events: auto;
+    }
+    #brand-header .header-top-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
     }
     #brand-header .sub-badge {
       font-size: 11px; font-weight: 800; color: #fff; background: var(--coral);
       padding: 3px 10px; border-radius: 999px; width: fit-content; letter-spacing: 0.5px;
     }
+    #perf-hud {
+      font-size: 10.5px; font-weight: 800; color: #2b6cb0; background: rgba(235, 248, 255, 0.9);
+      border: 1px solid #bee3f8; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.3px;
+      font-variant-numeric: tabular-nums;
+    }
     #brand-header h1 { font-size: 18px; font-weight: 900; color: var(--ink); letter-spacing: 0.5px; }
-    #brand-header p { font-size: 11px; color: #666; font-weight: 600; line-height: 1.4; }
+    #brand-header p { font-size: 11px; color: #5c646d; font-weight: 600; line-height: 1.4; }
 
     /* 頂部指示燈條 */
     #top-nav-ticker {
@@ -65,7 +74,15 @@
       display: flex; align-items: center; gap: 8px; z-index: 10; position: absolute;
       letter-spacing: 0.5px; white-space: nowrap; pointer-events: none;
     }
-    #top-nav-ticker span.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); flex-shrink: 0; }
+    #top-nav-ticker span.dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); flex-shrink: 0;
+      box-shadow: 0 0 8px var(--yellow);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.7; }
+    }
 
     /* 右上功能選單組 */
     #top-dock {
@@ -76,12 +93,13 @@
       padding: 9px 15px; border-radius: 12px; cursor: pointer; font-size: 12px;
       font-weight: 800; font-family: var(--font-main); display: flex; align-items: center; gap: 6px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      color: var(--ink);
     }
     .dock-btn:hover { background: var(--yellow); transform: translateY(-2px); }
 
     /* 右側詳細資訊抽屜面板 */
     #detail-drawer {
-      top: 78px; right: 24px; width: 400px; max-height: calc(100vh - 170px);
+      top: 78px; right: 24px; width: 405px; max-height: calc(100vh - 170px);
       overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px;
       transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
       z-index: 15;
@@ -89,12 +107,12 @@
     #detail-drawer.hidden { transform: translateX(440px); opacity: 0; pointer-events: none; }
     .drawer-title-row { display: flex; justify-content: space-between; align-items: center; }
     .drawer-title { font-size: 18px; font-weight: 900; color: var(--coral); }
-    .drawer-badge { padding: 4px 10px; border-radius: 999px; background: #eef2f5; font-size: 11px; font-weight: 800; color: #444; }
+    .drawer-badge { padding: 4px 10px; border-radius: 999px; background: #eef2f5; font-size: 11px; font-weight: 800; color: #444; width: fit-content; }
     
     /* 統計指標磚 */
     .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .metric-card {
-      background: rgba(255, 255, 255, 0.85); border: 1px solid #ebdcd0;
+      background: rgba(255, 255, 255, 0.88); border: 1px solid #ebdcd0;
       padding: 9px 12px; border-radius: 12px;
     }
     .metric-card .num { font-size: 16px; font-weight: 900; color: var(--coral); font-family: var(--font-main); }
@@ -104,7 +122,9 @@
     .officer-tag {
       display: flex; flex-direction: column; gap: 4px; padding: 9px 12px;
       background: #fff; border: 1px solid #e0d7cd; border-radius: 10px; font-size: 12px;
+      transition: border-color 0.2s, transform 0.2s;
     }
+    .officer-tag:hover { border-color: var(--coral); transform: translateX(2px); }
     .officer-tag .name-row { display: flex; justify-content: space-between; font-weight: 800; align-items: baseline; }
     .officer-tag .award-pill {
       font-size: 10.5px; background: #fdf5ea; color: #c85a32; padding: 2px 7px;
@@ -114,12 +134,12 @@
     /* 底部控制列 */
     #bottom-control-bar {
       bottom: 24px; left: 50%; transform: translateX(-50%);
-      padding: 8px 18px; display: flex; gap: 8px; align-items: center;
+      padding: 8px 18px; display: flex; gap: 6px; align-items: center;
       border-radius: 999px; z-index: 10;
     }
     .ctrl-btn {
       background: transparent; border: none; font-size: 12px; font-weight: 800;
-      font-family: var(--font-main);
+      font-family: var(--font-main); color: var(--ink);
       padding: 7px 13px; border-radius: 999px; cursor: pointer; transition: 0.2s;
       display: flex; align-items: center; gap: 5px; white-space: nowrap;
     }
@@ -131,24 +151,25 @@
     .island-badge {
       background: rgba(255, 253, 250, 0.95); color: var(--ink); padding: 5px 14px;
       border-radius: 999px; font-size: 12px; font-weight: 900; border: 2px solid #fff;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.15); pointer-events: auto; cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.16); pointer-events: auto; cursor: pointer;
       display: flex; align-items: center; gap: 6px; white-space: nowrap;
-      transform: translateY(-20px); transition: transform 0.2s, background 0.2s;
+      transform: translateY(-20px); transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s, border-color 0.2s;
+      will-change: transform;
     }
-    .island-badge:hover { transform: translateY(-24px) scale(1.05); }
+    .island-badge:hover { transform: translateY(-25px) scale(1.06); border-color: var(--coral); }
     .island-badge .pill-num {
       background: var(--coral); color: #fff; width: 18px; height: 18px;
       border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center;
     }
-    .island-badge.active { background: var(--ink); color: #fff; border-color: var(--yellow); }
+    .island-badge.active { background: var(--ink); color: #fff; border-color: var(--yellow); transform: translateY(-25px) scale(1.08); }
 
     /* 底部跑馬字幕 */
     #subtitle-bar {
       bottom: 82px; left: 50%; transform: translateX(-50%);
       background: rgba(31, 36, 41, 0.88); color: #fff; padding: 9px 22px;
       border-radius: 14px; font-size: 12.5px; font-weight: 700; z-index: 10;
-      box-shadow: var(--shadow); max-width: 720px; text-align: center; pointer-events: none;
-      line-height: 1.5;
+      box-shadow: var(--shadow); max-width: 760px; text-align: center; pointer-events: none;
+      line-height: 1.5; position: absolute;
     }
 
     /* 彈出視窗模組 */
@@ -159,7 +180,7 @@
     }
     .modal-overlay.active { display: flex; }
     .modal-box {
-      background: var(--cream); border-radius: 24px; width: 94%; max-width: 860px;
+      background: var(--cream); border-radius: 24px; width: 94%; max-width: 880px;
       max-height: 85vh; overflow-y: auto; padding: 28px; box-shadow: var(--shadow);
       position: relative; border: 1.5px solid #fff;
     }
@@ -175,7 +196,7 @@
     #loader {
       position: fixed; inset: 0; background: #ebdcd0; z-index: 999;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 16px; font-weight: 900; color: var(--coral);
+      gap: 16px; font-weight: 900; color: var(--coral); transition: opacity 0.35s ease;
     }
     .spinner {
       width: 48px; height: 48px; border: 4px solid rgba(219, 106, 65, 0.2);
@@ -187,7 +208,7 @@
     /* ------------------------------------------------------------- */
     /* 行動裝置 / 平板 RWD 響應式佈局 (Mobile & Tablet)                */
     /* ------------------------------------------------------------- */
-    @media (max-width: 900px) {
+    @media (max-width: 960px) {
       #brand-header {
         top: 10px; left: 10px; right: 10px; max-width: none;
         padding: 10px 14px; border-radius: 14px;
@@ -196,7 +217,7 @@
       #brand-header p { display: none; }
       
       #top-dock {
-        top: 60px; left: 10px; right: 10px;
+        top: 64px; left: 10px; right: 10px;
         overflow-x: auto; padding-bottom: 4px;
         -webkit-overflow-scrolling: touch;
       }
@@ -204,7 +225,7 @@
 
       #top-nav-ticker {
         top: auto; bottom: 76px; max-width: 92%;
-        font-size: 11px; padding: 6px 14px;
+        font-size: 11px; padding: 6px 14px; overflow: hidden; text-overflow: ellipsis;
       }
 
       #detail-drawer {
@@ -215,7 +236,7 @@
       #detail-drawer.hidden { transform: translateY(120%); opacity: 0; pointer-events: none; }
 
       #bottom-control-bar {
-        bottom: 12px; left: 50%; width: 95%; max-width: 500px;
+        bottom: 12px; left: 50%; width: 95%; max-width: 560px;
         padding: 6px 10px; overflow-x: auto; -webkit-overflow-scrolling: touch;
         justify-content: flex-start;
       }
@@ -240,14 +261,17 @@
   <!-- 載入等待動畫 -->
   <div id="loader">
     <div class="spinner"></div>
-    <div style="font-size: 15px; letter-spacing: 0.5px;">正在組裝連江縣「都計建管科」微縮業務生態島…</div>
+    <div style="font-size: 15px; letter-spacing: 0.5px;">正在組裝連江縣「都計建管科」微縮業務生態島 (GPU Shader & InstancedEngine)…</div>
   </div>
 
   <div id="canvas-container"></div>
 
   <!-- 左上標題看板 -->
   <div id="brand-header" class="glass-card">
-    <div class="sub-badge">連江縣政府工務處都計建管科</div>
+    <div class="header-top-row">
+      <div class="sub-badge">連江縣政府工務處都計建管科</div>
+      <div id="perf-hud" title="GPU Shader 海洋・InstancedMesh 批次渲染・DeltaTime 物理同步">⚡ GPU 60 FPS</div>
+    </div>
     <h1>都計建管業務與公文效能 3D 生態島</h1>
     <p>都計樁測定・國土功能分區・公保專案・建築線指示・無障礙勘檢</p>
   </div>
@@ -271,7 +295,7 @@
   <div id="detail-drawer" class="glass-card hidden">
     <div class="drawer-title-row">
       <div class="drawer-title" id="d-title">島嶼標題</div>
-      <button onclick="closeDrawer()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#777; line-height:1;">✕</button>
+      <button onclick="closeDrawer()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#777; line-height:1;" title="關閉 (Esc)">✕</button>
     </div>
     <div class="drawer-badge" id="d-subtitle">次標題</div>
     <div id="d-desc" style="font-size: 13px; line-height: 1.6; color:#444;"></div>
@@ -290,21 +314,22 @@
 
   <!-- 底部字幕提示條 -->
   <div id="subtitle-bar">
-    拖曳滑鼠左鍵旋轉視角、滾輪縮放；點選各鄉小島深入檢視都計建管同仁公文績效與業務。
+    拖曳滑鼠左鍵旋轉視角、滾輪縮放（支援鍵盤 1~4 選島、空白鍵巡航）；點選各鄉小島深入檢視都計建管同仁公文績效與業務。
   </div>
 
   <!-- 底部控制工具列 -->
   <div id="bottom-control-bar" class="glass-card">
-    <button class="ctrl-btn" onclick="prevIsland()">◀ 上一站</button>
-    <button class="ctrl-btn active" id="btn-tour" onclick="toggleAutoTour()">▶ 自動巡航</button>
-    <button class="ctrl-btn" onclick="nextIsland()">下一站 ▶</button>
+    <button class="ctrl-btn" onclick="prevIsland()" title="快捷鍵：←">◀ 上一站</button>
+    <button class="ctrl-btn active" id="btn-tour" onclick="toggleAutoTour()" title="快捷鍵：空白鍵">⏸ 巡航中</button>
+    <button class="ctrl-btn" onclick="nextIsland()" title="快捷鍵：→">下一站 ▶</button>
     <span style="color:#d0c6bc; user-select:none;">|</span>
-    <button class="ctrl-btn" onclick="setTimeMode('day', this)">☀️ 白晝</button>
-    <button class="ctrl-btn" onclick="setTimeMode('sunset', this)">🌅 夕陽</button>
-    <button class="ctrl-btn" onclick="setTimeMode('night', this)">🌙 漁火夜景</button>
+    <button class="ctrl-btn time-btn active" id="btn-day" onclick="setTimeMode('day', this)">☀️ 白晝</button>
+    <button class="ctrl-btn time-btn" id="btn-sunset" onclick="setTimeMode('sunset', this)">🌅 夕陽</button>
+    <button class="ctrl-btn time-btn" id="btn-night" onclick="setTimeMode('night', this)">🌙 漁火夜景</button>
     <span style="color:#d0c6bc; user-select:none;">|</span>
+    <button class="ctrl-btn" id="btn-proj" onclick="toggleProjectionMode()">📐 等距微縮</button>
     <button class="ctrl-btn" onclick="setOverviewCamera()">🌐 全景</button>
-    <button class="ctrl-btn" onclick="setTopView()">📐 正俯視</button>
+    <button class="ctrl-btn" onclick="setTopView()">🧭 正俯視</button>
   </div>
 
   <!-- 彈出視窗模組 -->
@@ -315,15 +340,15 @@
     </div>
   </div>
 
-  <!-- 主邏輯程式碼 (ESM) -->
+  <!-- 主邏輯程式碼 (ESM - 高階 WebGL 架構優化版) -->
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
-    // -----------------------------------------------------------------
+    // =================================================================
     // 0. 全域資料 (DATA)：全面整合 1151030 業務分工、考評榮譽與公文績效
-    // -----------------------------------------------------------------
+    // =================================================================
     window.DATA = {
       islands: [
         {
@@ -408,7 +433,7 @@
           officers: [
             { 
               name: '張宇涵', 
-              role: '都市計畫保/公專案通盤檢討(第二階段)／土地開發案件審查／都計陳情', 
+              role: '都市計畫保/公專案通盤檢討(第二階段)／土地開發案件審查／都計委員會', 
               docs: 396, days: 2.43, 
               award: '專案列管認真負責' 
             },
@@ -479,30 +504,80 @@
       }
     };
 
-    // -----------------------------------------------------------------
-    // 1. Three.js 場景、相機、微縮光影與渲染器設置
-    // -----------------------------------------------------------------
-    let scene, camera, renderer, labelRenderer, controls;
+    // =================================================================
+    // 1. 高階資源池 (ResourcePool) 與零配置暫存器 (Zero-Alloc Scratchpad)
+    // =================================================================
+    const ResourcePool = {
+      geometries: new Map(),
+      materials: new Map(),
+      getGeo(key, factory) {
+        if (!this.geometries.has(key)) this.geometries.set(key, factory());
+        return this.geometries.get(key);
+      },
+      getMat(key, factory) {
+        if (!this.materials.has(key)) this.materials.set(key, factory());
+        return this.materials.get(key);
+      }
+    };
+
+    // 預配置向量與矩陣，避免 animate() 迴圈觸發 Garbage Collection
+    const _v3A = new THREE.Vector3();
+    const _v3B = new THREE.Vector3();
+    const _mat4 = new THREE.Matrix4();
+    const _quat = new THREE.Quaternion();
+    const _scale = new THREE.Vector3();
+    const _upVec = new THREE.Vector3(0, 1, 0);
+
+    // =================================================================
+    // 2. Three.js 場景、雙相機架構 (Perspective / Orthographic) 與渲染器
+    // =================================================================
+    let scene, perspCamera, orthoCamera, activeCamera, renderer, labelRenderer, controls;
+    let isOrthoMode = false;
     let islandGroups = [];
-    let ferryMesh1, ferryMesh2;
+    let interactivePickMeshes = [];
     let lightTowerBeams = [];
-    let mazuLanternGlow;
-    let wavePlane;
+    let beamMaterials = [];
+    let mazuLanternGlow, mazuPointLight;
+    let selectionRingMesh;
+    let hoveredIslandId = null;
+
+    // GPU 海洋 Shader Uniforms
+    const oceanUniforms = {
+      uTime: { value: 0 },
+      uCrestColor: { value: new THREE.Color(0xdcf2f7) }
+    };
+
+    // 航線與船隻管理
+    const fleetRoutes = [];
     const container = document.getElementById('canvas-container');
 
     function initScene() {
       try {
         scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0xd8e8ea, 28, 95);
+        scene.fog = new THREE.Fog(0xd8e8ea, 30, 98);
 
-        camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.3, 300);
-        camera.position.set(16, 22, 28);
+        const aspect = window.innerWidth / window.innerHeight;
+        perspCamera = new THREE.PerspectiveCamera(30, aspect, 0.5, 260);
+        perspCamera.position.set(16, 22, 28);
 
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        const orthoSize = 11.5;
+        orthoCamera = new THREE.OrthographicCamera(
+          -orthoSize * aspect, orthoSize * aspect,
+          orthoSize, -orthoSize, 0.5, 260
+        );
+        orthoCamera.position.copy(perspCamera.position);
+        activeCamera = perspCamera;
+
+        renderer = new THREE.WebGLRenderer({
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+          stencil: false
+        });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.05;
+        renderer.toneMappingExposure = 1.06;
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
@@ -514,26 +589,22 @@
         labelRenderer.domElement.style.pointerEvents = 'none';
         container.appendChild(labelRenderer.domElement);
 
-        controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.07;
-        controls.enablePan = true;
-        controls.minDistance = 6;
-        controls.maxDistance = 65;
-        controls.minPolarAngle = THREE.MathUtils.degToRad(25);
-        controls.maxPolarAngle = THREE.MathUtils.degToRad(72);
-        controls.target.set(0.5, 0, -1);
-
+        setupControls(activeCamera);
         setupLighting();
-        setupDynamicOcean();
+        setupGPUOcean();
         buildMatsuArchipelago();
-        buildFerryRoutes();
+        buildSelectionBeacon();
+        buildSplineFerryNetwork();
 
-        // 綁定事件：點擊判定與視窗尺寸自適應
-        window.addEventListener('resize', onWindowResize);
-        setupPointerInteractions();
+        // 綁定視窗、互動與生命週期事件
+        window.addEventListener('resize', onWindowResize, { passive: true });
+        document.addEventListener('visibilitychange', onVisibilityChange);
+        setupPointerAndKeyboardInteractions();
 
-        document.getElementById('loader').style.display = 'none';
+        const loaderEl = document.getElementById('loader');
+        loaderEl.style.opacity = '0';
+        setTimeout(() => { loaderEl.style.display = 'none'; }, 350);
+
         startClock();
         animate();
       } catch (err) {
@@ -542,11 +613,67 @@
       }
     }
 
-    // -----------------------------------------------------------------
-    // 2. 光照與三時相系統
-    // -----------------------------------------------------------------
+    function setupControls(cam) {
+      const prevTarget = controls ? controls.target.clone() : new THREE.Vector3(0.5, 0, -1);
+      if (controls) controls.dispose();
+
+      controls = new OrbitControls(cam, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.065;
+      controls.enablePan = true;
+      controls.minDistance = 5.5;
+      controls.maxDistance = 68;
+      controls.minZoom = 0.45;
+      controls.maxZoom = 3.2;
+      controls.minPolarAngle = THREE.MathUtils.degToRad(15);
+      controls.maxPolarAngle = THREE.MathUtils.degToRad(73);
+      controls.target.copy(prevTarget);
+
+      // 使用者主動介入旋轉或縮放時，立即停止自動巡航與鏡頭飛行，避免鏡頭搶奪
+      controls.addEventListener('start', () => {
+        if (isAutoTour) {
+          isAutoTour = false;
+          clearTimeout(tourTimer);
+          updateTourButtonUI();
+        }
+        isCameraFlying = false;
+      });
+    }
+
+    // 切換等距正交 (Isometric Diorama) 與透視景深 (Perspective) 視角
+    window.toggleProjectionMode = function() {
+      isOrthoMode = !isOrthoMode;
+      const btn = document.getElementById('btn-proj');
+      const prevPos = activeCamera.position.clone();
+      const prevTarget = controls.target.clone();
+
+      if (isOrthoMode) {
+        orthoCamera.position.copy(prevPos);
+        const dist = prevPos.distanceTo(prevTarget);
+        orthoCamera.zoom = THREE.MathUtils.clamp(24 / Math.max(dist, 6), 0.55, 2.8);
+        orthoCamera.updateProjectionMatrix();
+        activeCamera = orthoCamera;
+        btn.classList.add('active');
+        btn.innerHTML = '🎥 透視景深';
+      } else {
+        perspCamera.position.copy(prevPos);
+        perspCamera.updateProjectionMatrix();
+        activeCamera = perspCamera;
+        btn.classList.remove('active');
+        btn.innerHTML = '📐 等距微縮';
+      }
+      setupControls(activeCamera);
+      controls.target.copy(prevTarget);
+      controls.update();
+    };
+
+    // =================================================================
+    // 3. 光照與三時相系統 (修正呼吸燈覆寫與夜景光束對比度)
+    // =================================================================
     let sunLight, hemiLight;
     let windowGlowMaterials = [];
+    let currentTimeMode = 'day';
+    let baseLanternEmissive = 0.65;
 
     function setupLighting() {
       hemiLight = new THREE.HemisphereLight(0xecf6fa, 0x8f8373, 1.35);
@@ -557,19 +684,20 @@
       sunLight.castShadow = true;
       sunLight.shadow.mapSize.width = 2048;
       sunLight.shadow.mapSize.height = 2048;
-      sunLight.shadow.camera.near = 1;
-      sunLight.shadow.camera.far = 100;
-      sunLight.shadow.camera.left = -26;
-      sunLight.shadow.camera.right = 26;
-      sunLight.shadow.camera.top = 26;
-      sunLight.shadow.camera.bottom = -26;
+      sunLight.shadow.camera.near = 4;
+      sunLight.shadow.camera.far = 85;
+      sunLight.shadow.camera.left = -22;
+      sunLight.shadow.camera.right = 22;
+      sunLight.shadow.camera.top = 22;
+      sunLight.shadow.camera.bottom = -22;
       sunLight.shadow.bias = -0.0004;
-      sunLight.shadow.normalBias = 0.04;
+      sunLight.shadow.normalBias = 0.035;
       scene.add(sunLight);
     }
 
     window.setTimeMode = function(mode, btn) {
-      document.querySelectorAll('#bottom-control-bar .ctrl-btn').forEach(b => b.classList.remove('active'));
+      currentTimeMode = mode;
+      document.querySelectorAll('#bottom-control-bar .time-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
 
       if (mode === 'day') {
@@ -578,64 +706,99 @@
         sunLight.intensity = 2.8;
         hemiLight.color.setHex(0xecf6fa);
         hemiLight.intensity = 1.35;
+        oceanUniforms.uCrestColor.value.setHex(0xdcf2f7);
         document.body.style.background = 'radial-gradient(circle at center, #fbfdfd 0%, #d8e8ea 100%)';
-        setWindowsEmissive(0.1);
+        setEnvironmentEmissive(0.12, 0.65, 0.24, 0.0);
       } else if (mode === 'sunset') {
         scene.fog.color.setHex(0xf7baa1);
         sunLight.color.setHex(0xff9966);
         sunLight.intensity = 2.1;
         hemiLight.color.setHex(0xf7d2bc);
         hemiLight.intensity = 1.15;
+        oceanUniforms.uCrestColor.value.setHex(0xfbe0c8);
         document.body.style.background = 'radial-gradient(circle at center, #fceadb 0%, #d9a088 100%)';
-        setWindowsEmissive(0.6);
+        setEnvironmentEmissive(0.85, 1.35, 0.42, 0.8);
       } else if (mode === 'night') {
-        scene.fog.color.setHex(0x1a263d);
+        scene.fog.color.setHex(0x131e33);
         sunLight.color.setHex(0x6f87bd);
-        sunLight.intensity = 0.55;
-        hemiLight.color.setHex(0x40557d);
-        hemiLight.intensity = 1.5;
+        sunLight.intensity = 0.48;
+        hemiLight.color.setHex(0x36496e);
+        hemiLight.intensity = 1.35;
+        oceanUniforms.uCrestColor.value.setHex(0x5282a8);
         document.body.style.background = 'radial-gradient(circle at center, #1c273c 0%, #0d1420 100%)';
-        setWindowsEmissive(1.5);
+        setEnvironmentEmissive(2.2, 2.4, 0.65, 2.2);
       }
     };
 
-    function setWindowsEmissive(intensity) {
-      windowGlowMaterials.forEach(m => {
-        m.emissiveIntensity = intensity;
-      });
-      if (mazuLanternGlow) mazuLanternGlow.material.emissiveIntensity = intensity * 1.8 + 0.3;
+    function setEnvironmentEmissive(winIntensity, lanternBase, beamOpacity, pointLightIntensity) {
+      windowGlowMaterials.forEach(m => { m.emissiveIntensity = winIntensity; });
+      baseLanternEmissive = lanternBase;
+      beamMaterials.forEach(m => { m.opacity = beamOpacity; });
+      if (mazuPointLight) mazuPointLight.intensity = pointLightIntensity;
     }
 
-    // -----------------------------------------------------------------
-    // 3. 頂點波動海洋
-    // -----------------------------------------------------------------
-    let oceanPosAttr;
-    let oceanInitialY = [];
-
-    function setupDynamicOcean() {
-      const geo = new THREE.PlaneGeometry(160, 160, 90, 90);
+    // =================================================================
+    // 4. GPU Custom Shader 海洋引擎 (0% CPU 頂點迴圈開銷)
+    // =================================================================
+    function setupGPUOcean() {
+      const geo = new THREE.PlaneGeometry(165, 165, 96, 96);
       geo.rotateX(-Math.PI / 2);
-      
-      oceanPosAttr = geo.attributes.position;
-      for (let i = 0; i < oceanPosAttr.count; i++) {
-        oceanInitialY.push(oceanPosAttr.getY(i));
-      }
 
       const mat = new THREE.MeshStandardMaterial({
-        color: 0x6ba9ba,
-        roughness: 0.18,
-        metalness: 0.08,
+        color: 0x5ca0b5,
+        roughness: 0.22,
+        metalness: 0.10,
         flatShading: true
       });
-      wavePlane = new THREE.Mesh(geo, mat);
+
+      mat.onBeforeCompile = (shader) => {
+        shader.uniforms.uTime = oceanUniforms.uTime;
+        shader.uniforms.uCrestColor = oceanUniforms.uCrestColor;
+
+        shader.vertexShader = `
+          uniform float uTime;
+          varying float vWaveHeight;
+        ` + shader.vertexShader;
+
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          `
+          #include <begin_vertex>
+          float w1 = sin(transformed.x * 0.18 + uTime * 1.65) * 0.085;
+          float w2 = cos(transformed.z * 0.18 + uTime * 1.35) * 0.075;
+          float w3 = sin((transformed.x + transformed.z) * 0.28 - uTime * 2.1) * 0.035;
+          float totalWave = w1 + w2 + w3;
+          transformed.y += totalWave;
+          vWaveHeight = totalWave;
+          `
+        );
+
+        shader.fragmentShader = `
+          uniform vec3 uCrestColor;
+          varying float vWaveHeight;
+        ` + shader.fragmentShader;
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <dithering_fragment>',
+          `
+          float crestFactor = smoothstep(0.06, 0.17, vWaveHeight) * 0.36;
+          gl_FragColor.rgb = mix(gl_FragColor.rgb, uCrestColor, crestFactor);
+          #include <dithering_fragment>
+          `
+        );
+      };
+
+      const wavePlane = new THREE.Mesh(geo, mat);
       wavePlane.position.y = -0.16;
       wavePlane.receiveShadow = true;
+      wavePlane.matrixAutoUpdate = false;
+      wavePlane.updateMatrix();
       scene.add(wavePlane);
     }
 
-    // -----------------------------------------------------------------
-    // 4. 四鄉五島微縮模型建構
-    // -----------------------------------------------------------------
+    // =================================================================
+    // 5. 四鄉五島微縮模型建構 (修正階層座標系 + InstancedMesh 批次渲染)
+    // =================================================================
     function createHexCanvasTexture() {
       const cvs = document.createElement('canvas');
       cvs.width = 256; cvs.height = 256;
@@ -648,7 +811,9 @@
         ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(256, i); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 256); ctx.stroke();
       }
-      return new THREE.CanvasTexture(cvs);
+      const tex = new THREE.CanvasTexture(cvs);
+      tex.anisotropy = 4;
+      return tex;
     }
 
     function buildMatsuArchipelago() {
@@ -656,19 +821,31 @@
       const R = 2.45;
       const TOP_H = 0.72;
 
+      // 共用島嶼基底幾何與材質 (減少 WebGL State 切換)
+      const sharedTopGeo = ResourcePool.getGeo('islandTop', () => new THREE.CylinderGeometry(R, R + 0.22, TOP_H, 6));
+      const sharedWalkGeo = ResourcePool.getGeo('islandWalk', () => new THREE.RingGeometry(R - 0.38, R - 0.05, 6));
+      const sharedFoamGeo = ResourcePool.getGeo('islandFoam', () => new THREE.RingGeometry(R + 0.06, R + 0.34, 6));
+
+      const sharedTopMat = ResourcePool.getMat('islandTopMat', () => new THREE.MeshStandardMaterial({
+        map: hexTex, color: 0xfbf7f2, roughness: 0.86, metalness: 0.02
+      }));
+      const sharedWalkMat = ResourcePool.getMat('islandWalkMat', () => new THREE.MeshStandardMaterial({
+        color: 0xdeb89e, roughness: 0.9
+      }));
+      const sharedFoamMat = ResourcePool.getMat('islandFoamMat', () => new THREE.MeshBasicMaterial({
+        color: 0xffffff, transparent: true, opacity: 0.62, side: THREE.DoubleSide
+      }));
+
+      // 收集全境樹木座標以建立單一 InstancedMesh
+      const greenTreeTransforms = [];
+      const pinkTreeTransforms = [];
+
       DATA.islands.forEach((isleData, index) => {
         const group = new THREE.Group();
         group.position.set(isleData.pos.x, 0, isleData.pos.z);
-        group.userData = { isle: isleData, index: index };
+        group.userData = { isle: isleData, isleId: isleData.id, index: index, baseY: 0 };
 
-        const topGeo = new THREE.CylinderGeometry(R, R + 0.22, TOP_H, 6);
-        const topMat = new THREE.MeshStandardMaterial({
-          map: hexTex,
-          color: 0xfbf7f2,
-          roughness: 0.88,
-          metalness: 0.02
-        });
-        const topMesh = new THREE.Mesh(topGeo, topMat);
+        const topMesh = new THREE.Mesh(sharedTopGeo, sharedTopMat);
         topMesh.position.y = TOP_H / 2;
         topMesh.rotation.y = Math.PI / 6;
         topMesh.receiveShadow = true;
@@ -676,34 +853,30 @@
         topMesh.userData = { isleId: isleData.id };
         group.add(topMesh);
 
-        const walkGeo = new THREE.RingGeometry(R - 0.38, R - 0.05, 6);
-        const walkMat = new THREE.MeshStandardMaterial({ color: 0xdeb89e, roughness: 0.9 });
-        const walkway = new THREE.Mesh(walkGeo, walkMat);
+        const walkway = new THREE.Mesh(sharedWalkGeo, sharedWalkMat);
         walkway.rotation.x = -Math.PI / 2;
         walkway.rotation.z = Math.PI / 6;
         walkway.position.y = TOP_H + 0.005;
         group.add(walkway);
 
-        const foamGeo = new THREE.RingGeometry(R + 0.06, R + 0.32, 6);
-        const foamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
-        const foam = new THREE.Mesh(foamGeo, foamMat);
+        const foam = new THREE.Mesh(sharedFoamGeo, sharedFoamMat);
         foam.rotation.x = -Math.PI / 2;
         foam.rotation.z = Math.PI / 6;
         foam.position.y = -0.12;
         group.add(foam);
 
+        // CSS2D 膠囊名牌
         const badgeDiv = document.createElement('div');
         badgeDiv.className = 'island-badge';
         badgeDiv.id = `badge-${isleData.id}`;
         badgeDiv.innerHTML = `<span class="pill-num">${isleData.num}</span><span>${isleData.name.slice(0, 2)}</span>`;
         badgeDiv.onclick = (e) => {
           e.stopPropagation();
-          isAutoTour = false;
-          updateTourButtonUI();
+          stopAutoTour();
           selectIsland(isleData.id);
         };
         const labelObj = new CSS2DObject(badgeDiv);
-        labelObj.position.set(0, TOP_H + 2.2, 0);
+        labelObj.position.set(0, TOP_H + 2.25, 0);
         group.add(labelObj);
 
         if (isleData.id === 'nangan') buildNanganFeatures(group, TOP_H);
@@ -711,11 +884,69 @@
         else if (isleData.id === 'dongyin') buildDongyinFeatures(group, TOP_H);
         else if (isleData.id === 'chukuang') buildChukuangFeatures(group, TOP_H);
 
-        decorateIslandStreet(group, R, TOP_H);
+        // 計算島嶼環道植栽世界座標供 InstancedMesh 批次渲染
+        for (let i = 0; i < 4; i++) {
+          const ang = (i * Math.PI * 2) / 4 + 0.35;
+          const dist = R - 0.55;
+          const wx = isleData.pos.x + Math.cos(ang) * dist;
+          const wy = TOP_H + 0.18;
+          const wz = isleData.pos.z + Math.sin(ang) * dist;
+          if (i % 2 === 0) greenTreeTransforms.push({ x: wx, y: wy, z: wz, s: 1.0 });
+          else pinkTreeTransforms.push({ x: wx, y: wy, z: wz, s: 0.95 });
+        }
+
+        // 將島嶼內所有 Mesh 標記 isleId，使點擊燈塔/神像/石屋皆可精準選島
+        group.traverse(child => {
+          if (child.isMesh) {
+            child.userData.isleId = isleData.id;
+            interactivePickMeshes.push(child);
+          }
+        });
 
         scene.add(group);
-        islandGroups.push({ group, topMesh, data: isleData });
+        islandGroups.push({ group, topMesh, foam, data: isleData });
       });
+
+      // 建立全島批次樹木 InstancedMesh (2 Draw Calls 取代 16 Draw Calls)
+      buildInstancedTrees(greenTreeTransforms, 0x769968);
+      buildInstancedTrees(pinkTreeTransforms, 0xebb0be);
+    }
+
+    function buildInstancedTrees(transforms, hexColor) {
+      if (!transforms.length) return;
+      const treeGeo = ResourcePool.getGeo('treeCrown', () => new THREE.DodecahedronGeometry(0.2, 1));
+      const treeMat = new THREE.MeshStandardMaterial({ color: hexColor, roughness: 0.88 });
+      const instMesh = new THREE.InstancedMesh(treeGeo, treeMat, transforms.length);
+      instMesh.castShadow = true;
+      instMesh.receiveShadow = true;
+
+      transforms.forEach((t, idx) => {
+        _v3A.set(t.x, t.y, t.z);
+        _quat.setFromAxisAngle(_upVec, idx * 1.1);
+        _scale.setScalar(t.s);
+        _mat4.compose(_v3A, _quat, _scale);
+        instMesh.setMatrixAt(idx, _mat4);
+      });
+      instMesh.instanceMatrix.needsUpdate = true;
+      instMesh.matrixAutoUpdate = false;
+      instMesh.updateMatrix();
+      scene.add(instMesh);
+    }
+
+    // 選中島嶼的 3D 動態高亮導引光環
+    function buildSelectionBeacon() {
+      const ringGeo = new THREE.RingGeometry(2.72, 2.90, 6);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0xdb6a41,
+        transparent: true,
+        opacity: 0.85,
+        side: THREE.DoubleSide
+      });
+      selectionRingMesh = new THREE.Mesh(ringGeo, ringMat);
+      selectionRingMesh.rotation.x = -Math.PI / 2;
+      selectionRingMesh.rotation.z = Math.PI / 6;
+      selectionRingMesh.position.set(-0.8, 0.02, -0.2);
+      scene.add(selectionRingMesh);
     }
 
     // 南竿：福澳港、裝卸吊臂、媽祖巨神像
@@ -726,64 +957,85 @@
       const statueGroup = new THREE.Group();
       statueGroup.position.set(-0.75, 0, -0.6);
 
-      const baseGeo = new THREE.BoxGeometry(0.8, 0.35, 0.8);
-      const baseMat = new THREE.MeshStandardMaterial({ color: 0xf5f3ee, roughness: 0.7 });
-      const base = new THREE.Mesh(baseGeo, baseMat);
+      const base = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 0.35, 0.8),
+        ResourcePool.getMat('graniteWhite', () => new THREE.MeshStandardMaterial({ color: 0xf5f3ee, roughness: 0.7 }))
+      );
       base.position.y = 0.175;
       base.castShadow = true;
       statueGroup.add(base);
 
-      const lotusGeo = new THREE.CylinderGeometry(0.42, 0.32, 0.14, 12);
-      const lotusMat = new THREE.MeshStandardMaterial({ color: 0xf49fb1, roughness: 0.6 });
-      const lotus = new THREE.Mesh(lotusGeo, lotusMat);
+      const lotus = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.42, 0.32, 0.14, 12),
+        new THREE.MeshStandardMaterial({ color: 0xf49fb1, roughness: 0.6 })
+      );
       lotus.position.y = 0.42;
       statueGroup.add(lotus);
 
-      const bodyGeo = new THREE.CylinderGeometry(0.24, 0.38, 1.35, 12);
-      const bodyMat = new THREE.MeshStandardMaterial({ color: 0xfcfbfa, roughness: 0.65 });
-      const body = new THREE.Mesh(bodyGeo, bodyMat);
+      const body = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.24, 0.38, 1.35, 12),
+        new THREE.MeshStandardMaterial({ color: 0xfcfbfa, roughness: 0.65 })
+      );
       body.position.y = 1.15;
       body.castShadow = true;
       statueGroup.add(body);
 
-      const crownGeo = new THREE.TorusGeometry(0.24, 0.05, 8, 20);
-      const crownMat = new THREE.MeshStandardMaterial({ color: 0xf0c043, metalness: 0.4, roughness: 0.3 });
-      const crown = new THREE.Mesh(crownGeo, crownMat);
+      const crown = new THREE.Mesh(
+        new THREE.TorusGeometry(0.24, 0.05, 8, 20),
+        new THREE.MeshStandardMaterial({ color: 0xf0c043, metalness: 0.4, roughness: 0.3 })
+      );
       crown.rotation.x = Math.PI / 2;
       crown.position.y = 1.95;
       statueGroup.add(crown);
 
-      const lanternGeo = new THREE.SphereGeometry(0.12, 10, 10);
       const lanternMat = new THREE.MeshStandardMaterial({
         color: 0xffd369,
         emissive: 0xffaa00,
         emissiveIntensity: 0.8
       });
-      mazuLanternGlow = new THREE.Mesh(lanternGeo, lanternMat);
+      mazuLanternGlow = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), lanternMat);
       mazuLanternGlow.position.set(0.28, 1.1, 0.22);
       statueGroup.add(mazuLanternGlow);
+
+      // 夜間媽祖燈籠真實點光源
+      mazuPointLight = new THREE.PointLight(0xffaa33, 0.0, 5.5);
+      mazuPointLight.position.set(0.28, 1.1, 0.22);
+      statueGroup.add(mazuPointLight);
+
       g.add(statueGroup);
 
       const portGroup = new THREE.Group();
       portGroup.position.set(0.65, 0, 0.5);
 
-      const pier = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.25, 0.7), new THREE.MeshStandardMaterial({ color: 0x999088 }));
+      const pier = new THREE.Mesh(
+        new THREE.BoxGeometry(1.2, 0.25, 0.7),
+        new THREE.MeshStandardMaterial({ color: 0x999088, roughness: 0.85 })
+      );
       pier.position.y = 0.125;
       pier.castShadow = true;
       portGroup.add(pier);
 
-      const ware = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.45, 0.45), new THREE.MeshStandardMaterial({ color: 0x4a7c8a, roughness: 0.7 }));
+      const ware = new THREE.Mesh(
+        new THREE.BoxGeometry(0.65, 0.45, 0.45),
+        new THREE.MeshStandardMaterial({ color: 0x4a7c8a, roughness: 0.7 })
+      );
       ware.position.set(-0.2, 0.45, 0);
       ware.castShadow = true;
       portGroup.add(ware);
+      // 修正：將福澳港倉儲窗戶正確掛載於 portGroup 局部座標系
+      registerWindowGlow(portGroup, -0.2, 0.45, 0.235);
 
-      const craneTower = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.85, 0.1), new THREE.MeshStandardMaterial({ color: 0xd9532f }));
+      const craneMat = new THREE.MeshStandardMaterial({ color: 0xd9532f, roughness: 0.5 });
+      const craneTower = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.85, 0.1), craneMat);
       craneTower.position.set(0.35, 0.55, 0.1);
-      const craneArm = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.08, 0.08), new THREE.MeshStandardMaterial({ color: 0xd9532f }));
+      const craneArm = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.08, 0.08), craneMat);
       craneArm.position.set(0.2, 0.95, 0.1);
       portGroup.add(craneTower, craneArm);
 
-      const ship = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.22, 0.3), new THREE.MeshStandardMaterial({ color: 0x223344 }));
+      const ship = new THREE.Mesh(
+        new THREE.BoxGeometry(0.9, 0.22, 0.3),
+        new THREE.MeshStandardMaterial({ color: 0x223344, roughness: 0.6 })
+      );
       ship.position.set(0.4, 0.12, 0.55);
       portGroup.add(ship);
       g.add(portGroup);
@@ -796,8 +1048,8 @@
       const g = new THREE.Group();
       g.position.set(0, h, 0);
 
-      const stoneMat = new THREE.MeshStandardMaterial({ color: 0xa89d91, roughness: 0.9 });
-      const redWallMat = new THREE.MeshStandardMaterial({ color: 0xc93b2b, roughness: 0.6 });
+      const stoneMat = ResourcePool.getMat('qinbiStone', () => new THREE.MeshStandardMaterial({ color: 0xa89d91, roughness: 0.9 }));
+      const redWallMat = ResourcePool.getMat('qinbiRed', () => new THREE.MeshStandardMaterial({ color: 0xc93b2b, roughness: 0.6 }));
 
       const house1 = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.6, 0.7), stoneMat);
       house1.position.set(-0.4, 0.3, -0.2);
@@ -810,8 +1062,9 @@
       fireWall.castShadow = true;
       g.add(fireWall);
 
+      const rockGeo = ResourcePool.getGeo('roofRock', () => new THREE.DodecahedronGeometry(0.06));
       for (let i = -0.25; i <= 0.25; i += 0.25) {
-        const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.06), stoneMat);
+        const rock = new THREE.Mesh(rockGeo, stoneMat);
         rock.position.set(-0.4 + i, 0.72, -0.05);
         g.add(rock);
       }
@@ -824,12 +1077,16 @@
       roof2.position.set(0.45, 0.62, 0.3);
       g.add(house2, roof2);
 
-      registerWindowGlow(house1, 0, 0.32, 0.36);
-      registerWindowGlow(house2, 0.45, 0.28, 0.61);
+      // 修正世界座標 Bug：將芹壁石屋窗戶正確掛載至北竿島建築群組 g 內
+      registerWindowGlow(g, -0.4, 0.32, 0.16);
+      registerWindowGlow(g, 0.45, 0.28, 0.61);
 
       const turtleGroup = new THREE.Group();
       turtleGroup.position.set(1.4, -h + 0.05, -1.2);
-      const turtleBody = new THREE.Mesh(new THREE.SphereGeometry(0.38, 8, 6), new THREE.MeshStandardMaterial({ color: 0x6e7865, roughness: 0.95 }));
+      const turtleBody = new THREE.Mesh(
+        new THREE.SphereGeometry(0.38, 8, 6),
+        new THREE.MeshStandardMaterial({ color: 0x6e7865, roughness: 0.95 })
+      );
       turtleBody.scale.set(1.4, 0.45, 0.9);
       turtleGroup.add(turtleBody);
       g.add(turtleGroup);
@@ -842,20 +1099,23 @@
       const g = new THREE.Group();
       g.position.set(0, h, 0);
 
-      const towerGeo = new THREE.CylinderGeometry(0.24, 0.36, 1.6, 16);
       const towerMat = new THREE.MeshStandardMaterial({ color: 0xfdfcf7, roughness: 0.45 });
-      const tower = new THREE.Mesh(towerGeo, towerMat);
+      const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.36, 1.6, 16), towerMat);
       tower.position.set(0, 0.8, 0);
       tower.castShadow = true;
       g.add(tower);
 
-      const domeGeo = new THREE.SphereGeometry(0.28, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2);
-      const domeMat = new THREE.MeshStandardMaterial({ color: 0xc8382b, roughness: 0.5 });
-      const dome = new THREE.Mesh(domeGeo, domeMat);
+      const dome = new THREE.Mesh(
+        new THREE.SphereGeometry(0.28, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+        new THREE.MeshStandardMaterial({ color: 0xc8382b, roughness: 0.5 })
+      );
       dome.position.set(0, 1.65, 0);
       g.add(dome);
 
-      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.14), new THREE.MeshStandardMaterial({ color: 0xfff7a8, emissive: 0xffea52, emissiveIntensity: 1.2 }));
+      const lamp = new THREE.Mesh(
+        new THREE.SphereGeometry(0.14),
+        new THREE.MeshStandardMaterial({ color: 0xfff7a8, emissive: 0xffea52, emissiveIntensity: 1.4 })
+      );
       lamp.position.set(0, 1.58, 0);
       g.add(lamp);
 
@@ -863,9 +1123,12 @@
       const beamMat = new THREE.MeshBasicMaterial({
         color: 0xfffacd,
         transparent: true,
-        opacity: 0.32,
-        side: THREE.DoubleSide
+        opacity: 0.28,
+        side: THREE.DoubleSide,
+        depthWrite: false
       });
+      beamMaterials.push(beamMat);
+
       const beam = new THREE.Mesh(beamGeo, beamMat);
       beam.rotation.x = Math.PI / 2;
       beam.position.set(0, 1.58, 2.4);
@@ -880,6 +1143,7 @@
       shed.position.set(-0.6, 0.2, 0.3);
       shed.castShadow = true;
       g.add(shed);
+      registerWindowGlow(g, -0.6, 0.22, 0.56);
 
       group.add(g);
     }
@@ -889,17 +1153,31 @@
       const g = new THREE.Group();
       g.position.set(0, h, 0);
 
-      const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.38, 1.4, 16), new THREE.MeshStandardMaterial({ color: 0xf5f3ee, roughness: 0.5 }));
+      const tower = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.26, 0.38, 1.4, 16),
+        ResourcePool.getMat('graniteWhite', () => new THREE.MeshStandardMaterial({ color: 0xf5f3ee, roughness: 0.5 }))
+      );
       tower.position.set(-0.55, 0.7, -0.4);
       tower.castShadow = true;
       g.add(tower);
 
-      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.13), new THREE.MeshStandardMaterial({ color: 0xffe680, emissive: 0xffc400, emissiveIntensity: 1 }));
+      const lamp = new THREE.Mesh(
+        new THREE.SphereGeometry(0.13),
+        new THREE.MeshStandardMaterial({ color: 0xffe680, emissive: 0xffc400, emissiveIntensity: 1.2 })
+      );
       lamp.position.set(-0.55, 1.45, -0.4);
       g.add(lamp);
 
       const beamGeo = new THREE.ConeGeometry(0.9, 3.8, 16, 1, true);
-      const beamMat = new THREE.MeshBasicMaterial({ color: 0xfffacd, transparent: true, opacity: 0.25, side: THREE.DoubleSide });
+      const beamMat = new THREE.MeshBasicMaterial({
+        color: 0xfffacd,
+        transparent: true,
+        opacity: 0.24,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      beamMaterials.push(beamMat);
+
       const beam = new THREE.Mesh(beamGeo, beamMat);
       beam.rotation.x = Math.PI / 2;
       beam.position.set(0, 0, 1.9);
@@ -913,81 +1191,141 @@
       const house = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.45, 0.6), houseMat);
       house.position.set(0.4, 0.225, 0.3);
       house.castShadow = true;
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(0.65, 0.25, 4), new THREE.MeshStandardMaterial({ color: 0xbf4d36, roughness: 0.7 }));
+      const roof = new THREE.Mesh(
+        new THREE.ConeGeometry(0.65, 0.25, 4),
+        new THREE.MeshStandardMaterial({ color: 0xbf4d36, roughness: 0.7 })
+      );
       roof.rotation.y = Math.PI / 4;
       roof.position.set(0.4, 0.55, 0.3);
       g.add(house, roof);
-      registerWindowGlow(house, 0.4, 0.225, 0.61);
+
+      // 修正：將大埔石屋窗戶正確掛載至莒光島建築群組 g 內
+      registerWindowGlow(g, 0.4, 0.225, 0.61);
 
       group.add(g);
     }
 
-    function registerWindowGlow(parentMesh, x, y, z) {
-      const winGeo = new THREE.PlaneGeometry(0.14, 0.16);
+    function registerWindowGlow(targetGroup, x, y, z) {
+      const winGeo = ResourcePool.getGeo('winPane', () => new THREE.PlaneGeometry(0.14, 0.16));
       const winMat = new THREE.MeshStandardMaterial({
         color: 0xffe899,
         emissive: 0xffb700,
-        emissiveIntensity: 0.2
+        emissiveIntensity: 0.12
       });
       windowGlowMaterials.push(winMat);
       const win = new THREE.Mesh(winGeo, winMat);
-      win.position.set(x, y, z + 0.01);
-      scene.add(win);
+      win.position.set(x, y, z);
+      targetGroup.add(win);
     }
 
-    function decorateIslandStreet(group, R, h) {
-      for (let i = 0; i < 4; i++) {
-        const ang = (i * Math.PI * 2) / 4 + 0.35;
-        const dist = R - 0.55;
-        const treeColor = (i % 2 === 0) ? 0x769968 : 0xebb0be;
-        const tree = new THREE.Mesh(
-          new THREE.DodecahedronGeometry(0.2, 1),
-          new THREE.MeshStandardMaterial({ color: treeColor, roughness: 0.9 })
-        );
-        tree.position.set(Math.cos(ang) * dist, h + 0.18, Math.sin(ang) * dist);
-        tree.castShadow = true;
-        group.add(tree);
-      }
-    }
+    // =================================================================
+    // 6. 貝茲樣條閉環海運網路 (CatmullRomCurve3 三航線 + 航向切線對齊)
+    // =================================================================
+    function buildSplineFerryNetwork() {
+      const routeConfigs = [
+        {
+          // 1. 南北之星：南竿福澳港 ↔ 北竿白沙港
+          hull: 0xffffff, cabin: 0x2b6cb0, speed: 0.085, phase: 0.0,
+          points: [
+            new THREE.Vector3(1.1, 0.02, 0.5),
+            new THREE.Vector3(2.8, 0.02, -0.4),
+            new THREE.Vector3(2.2, 0.02, -2.0),
+            new THREE.Vector3(0.4, 0.02, -1.6)
+          ]
+        },
+        {
+          // 2. 臺馬之星：南竿 ↔ 東引中柱港 (國之北疆航線)
+          hull: 0x2c4960, cabin: 0xd9534f, speed: 0.052, phase: 0.35,
+          points: [
+            new THREE.Vector3(-0.2, 0.02, -2.7),
+            new THREE.Vector3(1.6, 0.02, -6.2),
+            new THREE.Vector3(5.2, 0.02, -8.2),
+            new THREE.Vector3(5.6, 0.02, -5.8),
+            new THREE.Vector3(1.2, 0.02, -3.5)
+          ]
+        },
+        {
+          // 3. 東海明珠：南竿 ↔ 莒光雙島航線
+          hull: 0xfdfdfd, cabin: 0xdb6a41, speed: 0.068, phase: 0.65,
+          points: [
+            new THREE.Vector3(-2.6, 0.02, 1.4),
+            new THREE.Vector3(-4.2, 0.02, 2.5),
+            new THREE.Vector3(-3.3, 0.02, 4.2),
+            new THREE.Vector3(-1.4, 0.02, 2.4)
+          ]
+        }
+      ];
 
-    // -----------------------------------------------------------------
-    // 5. 穿梭客輪 (臺馬之星 & 南北之星)
-    // -----------------------------------------------------------------
-    function buildFerryRoutes() {
-      ferryMesh1 = createMiniShip(0x2c4960, 0xd9534f);
-      ferryMesh2 = createMiniShip(0xffffff, 0x337ab7);
-      scene.add(ferryMesh1, ferryMesh2);
+      routeConfigs.forEach(cfg => {
+        const curve = new THREE.CatmullRomCurve3(cfg.points, true, 'centripetal', 0.5);
+        const shipMesh = createMiniShip(cfg.hull, cfg.cabin);
+        scene.add(shipMesh);
+
+        // 繪製海運航道引導虛線
+        const linePts = curve.getPoints(64);
+        const lineGeo = new THREE.BufferGeometry().setFromPoints(linePts);
+        const lineMat = new THREE.LineDashedMaterial({
+          color: 0xffffff,
+          dashSize: 0.35,
+          gapSize: 0.25,
+          transparent: true,
+          opacity: 0.42
+        });
+        const routeLine = new THREE.Line(lineGeo, lineMat);
+        routeLine.computeLineDistances();
+        routeLine.position.y = -0.08;
+        scene.add(routeLine);
+
+        fleetRoutes.push({
+          curve,
+          ship: shipMesh,
+          speed: cfg.speed,
+          progress: cfg.phase
+        });
+      });
     }
 
     function createMiniShip(hullColor, cabinColor) {
       const ship = new THREE.Group();
-      const hull = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.14, 0.22), new THREE.MeshStandardMaterial({ color: hullColor, roughness: 0.5 }));
+      const hull = new THREE.Mesh(
+        ResourcePool.getGeo('shipHull', () => new THREE.BoxGeometry(0.56, 0.14, 0.24)),
+        new THREE.MeshStandardMaterial({ color: hullColor, roughness: 0.45 })
+      );
       hull.position.y = 0.07;
       hull.castShadow = true;
-      const cabin = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.15, 0.16), new THREE.MeshStandardMaterial({ color: cabinColor, roughness: 0.6 }));
-      cabin.position.set(-0.06, 0.18, 0);
+
+      const cabin = new THREE.Mesh(
+        ResourcePool.getGeo('shipCabin', () => new THREE.BoxGeometry(0.28, 0.15, 0.17)),
+        new THREE.MeshStandardMaterial({ color: cabinColor, roughness: 0.55 })
+      );
+      cabin.position.set(0.0, 0.18, 0);
       cabin.castShadow = true;
-      ship.add(hull, cabin);
+
+      // 船尾浪花軌跡小片
+      const wake = new THREE.Mesh(
+        ResourcePool.getGeo('shipWake', () => new THREE.PlaneGeometry(0.42, 0.18)),
+        ResourcePool.getMat('wakeMat', () => new THREE.MeshBasicMaterial({
+          color: 0xffffff, transparent: true, opacity: 0.55, side: THREE.DoubleSide
+        }))
+      );
+      wake.rotation.x = -Math.PI / 2;
+      wake.position.set(-0.42, 0.01, 0);
+
+      ship.add(hull, cabin, wake);
       return ship;
     }
 
-    // -----------------------------------------------------------------
-    // 6. 純 Web Audio 海潮合成器
-    // -----------------------------------------------------------------
+    // =================================================================
+    // 7. 純 Web Audio 海潮合成器 (支援背景分頁自動休眠)
+    // =================================================================
     let audioCtx = null;
     let isAudioPlaying = false;
-    let noiseNode = null;
-    let filterNode = null;
 
     window.toggleAudio = function() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         buildOceanSoundSynthesizer();
       }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-
       const icon = document.getElementById('audio-icon');
       if (isAudioPlaying) {
         audioCtx.suspend();
@@ -1018,11 +1356,11 @@
         b6 = white * 0.115926;
       }
 
-      noiseNode = audioCtx.createBufferSource();
+      const noiseNode = audioCtx.createBufferSource();
       noiseNode.buffer = noiseBuffer;
       noiseNode.loop = true;
 
-      filterNode = audioCtx.createBiquadFilter();
+      const filterNode = audioCtx.createBiquadFilter();
       filterNode.type = 'lowpass';
       filterNode.frequency.setValueAtTime(320, audioCtx.currentTime);
 
@@ -1045,32 +1383,58 @@
       lfo.start();
     }
 
-    // -----------------------------------------------------------------
-    // 7. 互動巡弋、點擊判定與相機鏡頭插值
-    // -----------------------------------------------------------------
+    // =================================================================
+    // 8. 互動巡弋、Raycaster 階層拾取、懸停回饋與鍵盤導航
+    // =================================================================
     let currentIndex = 0;
     let isAutoTour = true;
     let tourTimer = null;
     let isCameraFlying = false;
-    let flyStartPos = new THREE.Vector3();
-    let flyEndPos = new THREE.Vector3();
-    let flyStartLook = new THREE.Vector3();
-    let flyEndLook = new THREE.Vector3();
+    const flyStartPos = new THREE.Vector3();
+    const flyEndPos = new THREE.Vector3();
+    const flyStartLook = new THREE.Vector3();
+    const flyEndLook = new THREE.Vector3();
     let flyProgress = 0;
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let pointerStartX = 0;
     let pointerStartY = 0;
+    let lastHoverCheck = 0;
 
-    function setupPointerInteractions() {
+    function setupPointerAndKeyboardInteractions() {
       window.addEventListener('pointerdown', (e) => {
         pointerStartX = e.clientX;
         pointerStartY = e.clientY;
-      });
+      }, { passive: true });
+
+      // 節流 (Throttled) 滑鼠懸停偵測：提供手型游標與島嶼微浮動回饋
+      window.addEventListener('pointermove', (e) => {
+        const now = performance.now();
+        if (now - lastHoverCheck < 50) return;
+        lastHoverCheck = now;
+
+        if (e.target.closest('#brand-header, #top-dock, #detail-drawer, #bottom-control-bar, .modal-overlay')) {
+          document.body.style.cursor = 'default';
+          hoveredIslandId = null;
+          return;
+        }
+
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, activeCamera);
+
+        const hits = raycaster.intersectObjects(interactivePickMeshes, false);
+        if (hits.length > 0 && hits[0].object.userData.isleId) {
+          hoveredIslandId = hits[0].object.userData.isleId;
+          document.body.style.cursor = 'pointer';
+        } else {
+          hoveredIslandId = null;
+          document.body.style.cursor = 'default';
+        }
+      }, { passive: true });
 
       window.addEventListener('pointerup', (e) => {
-        // 防止拖曳旋轉時誤觸發島嶼選取 (位移大於 6px 視為旋轉視角而非點擊)
         const dx = Math.abs(e.clientX - pointerStartX);
         const dy = Math.abs(e.clientY - pointerStartY);
         if (dx > 6 || dy > 6) return;
@@ -1079,18 +1443,39 @@
 
         mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        raycaster.setFromCamera(mouse, camera);
+        raycaster.setFromCamera(mouse, activeCamera);
 
-        const hitList = raycaster.intersectObjects(islandGroups.map(ig => ig.topMesh), false);
-        if (hitList.length > 0) {
-          const matched = islandGroups.find(ig => ig.topMesh === hitList[0].object);
-          if (matched) {
-            isAutoTour = false;
-            updateTourButtonUI();
-            selectIsland(matched.data.id);
-          }
+        const hitList = raycaster.intersectObjects(interactivePickMeshes, false);
+        if (hitList.length > 0 && hitList[0].object.userData.isleId) {
+          stopAutoTour();
+          selectIsland(hitList[0].object.userData.isleId);
         }
       });
+
+      // 鍵盤無障礙快捷鍵支援
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (document.getElementById('main-modal').classList.contains('active')) closeModal();
+          else closeDrawer();
+        } else if (e.key === 'ArrowRight') {
+          nextIsland();
+        } else if (e.key === 'ArrowLeft') {
+          prevIsland();
+        } else if (e.key === ' ') {
+          e.preventDefault();
+          toggleAutoTour();
+        } else if (['1', '2', '3', '4'].includes(e.key)) {
+          stopAutoTour();
+          const idx = parseInt(e.key, 10) - 1;
+          if (DATA.islands[idx]) selectIsland(DATA.islands[idx].id);
+        }
+      });
+    }
+
+    function stopAutoTour() {
+      isAutoTour = false;
+      clearTimeout(tourTimer);
+      updateTourButtonUI();
     }
 
     function selectIsland(id) {
@@ -1101,13 +1486,17 @@
         flyToTarget(isle.pos.x, isle.pos.z, isle);
         updateDrawerContent(isle);
         updateActiveBadge(isle.id);
+        if (selectionRingMesh) {
+          selectionRingMesh.visible = true;
+          selectionRingMesh.position.set(isle.pos.x, 0.02, isle.pos.z);
+        }
       }
     }
 
     function flyToTarget(x, z, isle) {
       isCameraFlying = true;
       flyProgress = 0;
-      flyStartPos.copy(camera.position);
+      flyStartPos.copy(activeCamera.position);
       flyStartLook.copy(controls.target);
 
       flyEndLook.set(x, 0.72, z);
@@ -1164,15 +1553,13 @@
     }
 
     window.prevIsland = function() {
-      isAutoTour = false;
-      updateTourButtonUI();
+      stopAutoTour();
       currentIndex = (currentIndex - 1 + DATA.islands.length) % DATA.islands.length;
       selectIsland(DATA.islands[currentIndex].id);
     };
 
     window.nextIsland = function() {
-      isAutoTour = false;
-      updateTourButtonUI();
+      stopAutoTour();
       currentIndex = (currentIndex + 1) % DATA.islands.length;
       selectIsland(DATA.islands[currentIndex].id);
     };
@@ -1181,6 +1568,7 @@
       isAutoTour = !isAutoTour;
       updateTourButtonUI();
       if (isAutoTour) runAutoTourStep();
+      else clearTimeout(tourTimer);
     };
 
     function updateTourButtonUI() {
@@ -1203,31 +1591,31 @@
     }
 
     window.setOverviewCamera = function() {
-      isAutoTour = false;
-      updateTourButtonUI();
+      stopAutoTour();
       isCameraFlying = true;
       flyProgress = 0;
-      flyStartPos.copy(camera.position);
+      flyStartPos.copy(activeCamera.position);
       flyStartLook.copy(controls.target);
       flyEndLook.set(0.5, 0, -1);
       flyEndPos.set(16, 22, 28);
+      if (selectionRingMesh) selectionRingMesh.visible = false;
+      updateActiveBadge(null);
       document.getElementById('ticker-text').innerText = '連江縣都計建管四鄉五島全境視野・點選島嶼查閱業務與承辦';
     };
 
     window.setTopView = function() {
-      isAutoTour = false;
-      updateTourButtonUI();
+      stopAutoTour();
       isCameraFlying = true;
       flyProgress = 0;
-      flyStartPos.copy(camera.position);
+      flyStartPos.copy(activeCamera.position);
       flyStartLook.copy(controls.target);
-      flyEndLook.set(0.5, 0, -1);
-      flyEndPos.set(0.51, 38, -0.99);
+      flyEndLook.set(0.5, 0, -1.5);
+      flyEndPos.set(0.51, 36, -1.49);
     };
 
-    // -----------------------------------------------------------------
-    // 8. 視窗 Modal 業務內容 (嚴格校正業務、考核與公文統計)
-    // -----------------------------------------------------------------
+    // =================================================================
+    // 9. 視窗 Modal 業務內容 (嚴格校正業務、考核與公文統計)
+    // =================================================================
     window.openModal = function(type) {
       const modal = document.getElementById('main-modal');
       const box = document.getElementById('modal-content-area');
@@ -1413,71 +1801,124 @@
       }
     };
 
-    // -----------------------------------------------------------------
-    // 9. 逐幀渲染迴圈
-    // -----------------------------------------------------------------
-    let clockTime = 0;
+    // =================================================================
+    // 10. 跨平台 Delta-Time 物理與渲染迴圈 (支援頁面可見度休眠與 FPS 監控)
+    // =================================================================
+    const clock = new THREE.Clock();
+    let elapsedTime = 0;
+    let isPageHidden = false;
+    let frameCount = 0;
+    let fpsAccumTime = 0;
+    const perfHudEl = document.getElementById('perf-hud');
+
     function startClock() {
       runAutoTourStep();
     }
 
+    function onVisibilityChange() {
+      isPageHidden = document.hidden;
+      if (isPageHidden) {
+        clock.stop();
+        if (audioCtx && isAudioPlaying) audioCtx.suspend();
+      } else {
+        clock.start();
+        if (audioCtx && isAudioPlaying) audioCtx.resume();
+      }
+    }
+
     function animate() {
       requestAnimationFrame(animate);
-      clockTime += 0.02;
+      if (isPageHidden) return;
 
-      if (oceanPosAttr) {
-        for (let i = 0; i < oceanPosAttr.count; i++) {
-          const u = oceanPosAttr.getX(i);
-          const v = oceanPosAttr.getZ(i);
-          const waveHeight = Math.sin(u * 0.18 + clockTime * 1.6) * 0.08 +
-                             Math.cos(v * 0.18 + clockTime * 1.3) * 0.07;
-          oceanPosAttr.setY(i, oceanInitialY[i] + waveHeight);
-        }
-        oceanPosAttr.needsUpdate = true;
+      const delta = Math.min(clock.getDelta(), 0.1);
+      elapsedTime += delta;
+
+      // 更新 FPS 與 Draw Calls 效能指標膠囊
+      frameCount++;
+      fpsAccumTime += delta;
+      if (fpsAccumTime >= 0.6 && perfHudEl) {
+        const fps = Math.min(Math.round(frameCount / fpsAccumTime), 120);
+        const dc = renderer.info.render.calls;
+        perfHudEl.innerText = `⚡ GPU ${fps} FPS・${dc} DC`;
+        frameCount = 0;
+        fpsAccumTime = 0;
       }
 
+      // 1. GPU 海洋時間 Uniform 更新 (0% CPU 頂點開銷)
+      oceanUniforms.uTime.value = elapsedTime;
+
+      // 2. 燈塔 360 度光束真實角速度旋轉
       lightTowerBeams.forEach(b => {
-        b.rotation.y += 0.025;
+        b.rotation.y += 1.45 * delta;
       });
 
-      if (ferryMesh1) {
-        const t1 = (clockTime * 0.25) % (Math.PI * 2);
-        ferryMesh1.position.x = Math.sin(t1) * 2.6 + 1.2;
-        ferryMesh1.position.z = Math.cos(t1) * 2.2 - 2.0;
-        ferryMesh1.position.y = 0.02 + Math.sin(clockTime * 2) * 0.015;
-        ferryMesh1.rotation.y = -t1 + Math.PI / 2;
-      }
-      if (ferryMesh2) {
-        const t2 = (clockTime * 0.18) % (Math.PI * 2);
-        ferryMesh2.position.x = Math.cos(t2) * 3.4 - 3.2;
-        ferryMesh2.position.z = Math.sin(t2) * 2.8 + 2.2;
-        ferryMesh2.position.y = 0.02 + Math.cos(clockTime * 2.2) * 0.015;
-        ferryMesh2.rotation.y = t2;
-      }
+      // 3. 貝茲樣條海運船隊運動與切線朝向 (Zero-Alloc 計算)
+      fleetRoutes.forEach((r, idx) => {
+        r.progress = (r.progress + r.speed * delta) % 1.0;
+        r.curve.getPointAt(r.progress, _v3A);
+        r.curve.getTangentAt(r.progress, _v3B);
 
+        r.ship.position.set(
+          _v3A.x,
+          0.02 + Math.sin(elapsedTime * 2.4 + idx) * 0.016,
+          _v3A.z
+        );
+        r.ship.rotation.y = Math.atan2(_v3B.x, _v3B.z) - Math.PI / 2;
+        r.ship.rotation.z = Math.sin(elapsedTime * 3.0 + idx) * 0.03;
+      });
+
+      // 4. 媽祖巨神像呼吸燈籠 (疊加日/夕/夜基準亮度)
       if (mazuLanternGlow) {
-        mazuLanternGlow.material.emissiveIntensity = 0.7 + Math.sin(clockTime * 3) * 0.35;
+        mazuLanternGlow.material.emissiveIntensity = baseLanternEmissive + Math.sin(elapsedTime * 3.2) * 0.35;
       }
 
+      // 5. 島嶼懸停微浮動與選中光環呼吸動畫
+      islandGroups.forEach(ig => {
+        const targetY = (hoveredIslandId === ig.data.id) ? 0.08 : 0.0;
+        ig.group.position.y = THREE.MathUtils.lerp(ig.group.position.y, targetY, 1 - Math.exp(-10 * delta));
+      });
+
+      if (selectionRingMesh && selectionRingMesh.visible) {
+        const pulse = 1.0 + Math.sin(elapsedTime * 3.5) * 0.035;
+        selectionRingMesh.scale.set(pulse, pulse, 1);
+        selectionRingMesh.material.opacity = 0.65 + Math.sin(elapsedTime * 3.5) * 0.25;
+      }
+
+      // 6. 跨幀率無縫相機飛行插值
       if (isCameraFlying) {
-        flyProgress += 0.025;
+        flyProgress += delta * 1.35;
         const t = Math.min(flyProgress, 1.0);
         const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-        camera.position.lerpVectors(flyStartPos, flyEndPos, ease);
+        activeCamera.position.lerpVectors(flyStartPos, flyEndPos, ease);
         controls.target.lerpVectors(flyStartLook, flyEndLook, ease);
+
+        if (isOrthoMode) {
+          const dist = activeCamera.position.distanceTo(controls.target);
+          orthoCamera.zoom = THREE.MathUtils.clamp(24 / Math.max(dist, 6), 0.55, 2.8);
+          orthoCamera.updateProjectionMatrix();
+        }
 
         if (t >= 1.0) isCameraFlying = false;
       }
 
       controls.update();
-      renderer.render(scene, camera);
-      labelRenderer.render(scene, camera);
+      renderer.render(scene, activeCamera);
+      labelRenderer.render(scene, activeCamera);
     }
 
     function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+      const aspect = window.innerWidth / window.innerHeight;
+      perspCamera.aspect = aspect;
+      perspCamera.updateProjectionMatrix();
+
+      const orthoSize = 11.5;
+      orthoCamera.left = -orthoSize * aspect;
+      orthoCamera.right = orthoSize * aspect;
+      orthoCamera.top = orthoSize;
+      orthoCamera.bottom = -orthoSize;
+      orthoCamera.updateProjectionMatrix();
+
       renderer.setSize(window.innerWidth, window.innerHeight);
       labelRenderer.setSize(window.innerWidth, window.innerHeight);
     }
